@@ -1,0 +1,11 @@
+# sample colormaps outputs
+sample_colormaps
+
+# IDEs
+*.idea
+
+# bytecode files
+*.pyc
+
+# other
+*__pycache__
