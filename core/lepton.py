@@ -1,40 +1,26 @@
+"""
+Capture images and telemetry data from a Lepton camera. Also
+supports temperature conversions from the Lepton.
+
+Created for use with FLIR Lepton® 3.5 radiometric thermal camera.
+"""
+
+__author__ = "James Cook"
+__copyright__ = "Copyright 2021"
+__license__ = "GNU General Public License v3.0"
+__version__ = "1.0.0"
+__maintainer__ = "James Cook"
+__email__ = "contact@cookjames.uk"
+__status__ = "Prototype"
+
 
 # external module imports
-import cv2
 from flirpy.camera.lepton import Lepton
 import numpy as np
-from PIL import Image
 
 
-# Lepton capture image dimension data
+# Lepton capture image dimensions
 img_dimension = 160, 120
-aspect_ratio = img_dimension[1] / img_dimension[0]
-
-
-# cv2 colormap names in order of index value
-colormaps = [
-    "AUTUMN",
-    "JET",
-    "BONE",
-    "WINTER",
-    "RAINBOW",
-    "OCEAN",
-    "SUMMER",
-    "SPRING",
-    "COOL",
-    "HSV",
-    "PINK",
-    "HOT",
-    "PARULA",
-    "MAGMA",
-    "INFERNO",
-    "PLASMA",
-    "VIRIDIS",
-    "CIVIDIS",
-    "TWILIGHT",
-    "TWILIGHT_SHIFTED",
-    "TURBO",
-    "DEEPGREEN"]
 
 
 class LeptonCamera:
@@ -68,48 +54,7 @@ class LeptonCamera:
             self._device_id = None
             raise e
 
-    def create_colormap_image(self, colormap_index=5, width=img_dimension[0]):
-        """
-        Creates and returns an 8-bit color image.
-
-        Uses the last capture to create an 8-bit color image.
-        Applies an OpenCV colormap and scales image to a set width.
-
-        Params:
-            colormap_index: cv2 colormap applied to image
-            width: width of output image (keeps aspect ratio)
-
-        Returns:
-            PIL.Image.Image: 8-bit color image
-
-        Raises:
-            AssertionError: assertions fail
-        """
-        assert(colormap_index >= 0 or colormap_index < len(colormaps)),\
-            "colormap_index value '{}' is invalid. Must be an integer in range 0 to 21.".format(colormap_index)
-
-        assert(self._img is not None),\
-            "No capture to process."
-
-        assert(width > 0),\
-            "Width value must be greater than 0"
-
-        # Rescale to 8 bit color
-        img = 255 * (self._img - self._img.min()) / (self._img.max() - self._img.min())
-
-        # Apply colormap
-        color_arr = cv2.applyColorMap(img.astype(np.uint8), colormap_index)
-
-        # Convert to PIl.Image.Image
-        color_img = Image.fromarray(color_arr, 'RGB')
-
-        # Scale image (keeping aspect ratio)
-        if width != img_dimension[0]:
-            color_img = color_img.resize((width, round(width * aspect_ratio)))
-
-        return color_img
-
-    def get_thermal_data(self):
+    def get_img(self):
         """
         Returns thermal image captured.
 
@@ -158,23 +103,7 @@ class LeptonCamera:
         If the Lepton is found, sets device_id to a value >= 0.
         Otherwise sets device_id to None.
         """
-        self.device_id = self._camera.find_video_device()
-
-
-def to_celsius(value):
-    """
-    Converts a temperature from a Lepton capture to Celsius.
-
-    Returns the temperature to one decimal place since lower
-    significant digits are not precise).
-
-    Parameters:
-        value - lepton capture temperature value
-
-    Returns:
-        float - temperature value in Celsius
-    """
-    return round((value / 100) - 273.15, 1)
+        self._device_id = self._camera.find_video_device()
 
 
 def to_kelvin(value):
@@ -193,13 +122,37 @@ def to_kelvin(value):
     return round(value / 100, 1)
 
 
-if __name__ == "__main__":
-    import time
-    print("started")
-    lc = LeptonCamera()
-    for i in range(2):
-        lc.capture()
-        time.sleep(0.5)
+def to_celsius(value):
+    """
+    Converts a temperature from a Lepton capture to Celsius.
 
-    ci = lc.create_colormap_image(colormap_index=5, width=800)
-    ci.show()
+    Returns the temperature to one decimal place since lower
+    significant digits are not precise).
+
+    Parameters:
+        value - lepton capture temperature value
+
+    Returns:
+        float - temperature value in Celsius
+    """
+    return round(to_kelvin(value) - 273.15, 1)
+
+
+def to_fahrenheit(value):
+    """
+        Converts a temperature from a Lepton capture to Fahrenheit.
+
+        Returns the temperature to one decimal place since lower
+        significant digits are not precise).
+
+        Parameters:
+            value - lepton capture temperature value
+
+        Returns:
+            float - temperature value in Fahrenheit
+        """
+    round((to_kelvin(value) - 273.15) * 1.8 + 32, 1)
+
+
+if __name__ == "__main__":
+    pass
