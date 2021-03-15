@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Users\cooki\OneDrive - Staffordshire University\projects\qtgui\ui\confirm.ui'
+# Form implementation generated from reading ui file 'C:\Users\cooki\OneDrive\Desktop\fever_monitor\qtgui\ui\confirm.ui'
 #
 # Created by: PyQt5 UI code generator 5.13.0
 #

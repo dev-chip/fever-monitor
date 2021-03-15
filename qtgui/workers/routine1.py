@@ -2,71 +2,40 @@
 # A generic worker thread example
 # -------------------------------------------------------------------------------
 
-from time import sleep
+
+# module imports
+from core.main import FeverMonitor
+
+# external module imports
 import threading
-
-from qtgui.workers.classes import CommunicateLog, CommunicateProgress
-
+from qtgui.workers.classes import CommunicateLog, CommunicateData
 from qtgui.logger import init_signal_logger
 
 
 class LoadThread(threading.Thread):
-    """
-        A thread that downloads and builds simulation whilst communicating with the UI.
-    """
-
-    def __init__(self, logger_callback, progress_callback):
-        """
-            init
-        """
+    def __init__(self, logger_callback, data_callback):
         threading.Thread.__init__(self)
 
         self.logCom = CommunicateLog()
         self.logCom.myGUI_signal.connect(logger_callback)
         self.log = init_signal_logger(self.logCom.myGUI_signal)
 
-        self.kill = False
-        self.pause = False
+        self.fever_monitor = FeverMonitor()
 
-        self.progress = CommunicateProgress()
-        self.progress.myGUI_signal.connect(progress_callback)
+        self.data = CommunicateData()
+        self.data.myGUI_signal.connect(data_callback)
 
     def run(self):
         """
-            Runs routine whilst commminicating with GUI
+        TODO
         """
         self.log.debug("Thread alive")
 
-        # Progress bar initial value
-        value = 0.0
+        while True:
+            image, faces, elapsed = self.fever_monitor.run()
+            self.data.myGUI_signal.emit(image)
 
-        # Run for as long as the GUI mainloop is running
-        while not self.kill and value < 100:
-
-            # Increment progress bar completion value
-            value += 1
-
-            # Callback
-            self.progress.myGUI_signal.emit(value)
-            self.log.verbose("Emitted value " + str(value))
-            sleep(0.05)
-
-            # Repeatedly sleep in a loop while the user has chosen to pause
-            while self.pause and not self.kill:
-                sleep(0.05)
         self.log.debug("Thread dead")
-
-    def kill(self):
-        """
-            Kill the thread
-        """
-        self.kill = True
-
-    def pause(self):
-        """
-            Pause the thread process
-        """
-        self.pause = True
 
 
 if __name__ == "__main__":

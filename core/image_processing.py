@@ -199,16 +199,23 @@ def generate_random_colors(n):
     return np.random.randint(0, 255, size=(n, 3), dtype="uint8")
 
 
-def draw_boxes(detections, image, colors, labels):
+def draw_face_box(face, image, color, text="face"):
     """
     Draws boxes around detections... TODO: short des
 
     TODO:
     """
-    for d in detections:
-        color = [int(c) for c in colors[d.class_id]]
-        cv2.rectangle(image, (d.x, d.y), (d.x + d.w, d.y + d.h), color, 2)
-        text = "{}: {:.4f}".format(labels[d.class_id], d.confidence)
-        cv2.putText(image, text, (d.x, d.y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-
+    color =
+    cv2.rectangle(image, (face.detection.x, face.detection.y), (face.detection.x + face.detection.w, face.detection.y + face.detection.h), [int(c) for c in color], 1)
+    cv2.putText(img=image, text=text, org=(face.detection.x+(face.detection.w//2), face.detection.y - 5), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                fontScale=0.4, color=color, thickness=1)
     return image
+
+
+def draw_boxes(detections, image, colors, labels):
+    for d in detections:
+        text = "{}: {:.4f}".format(labels[d.class_id], d.confidence)
+        color = [int(c) for c in colors[d.class_id]]
+        cv2.rectangle(img=image, pt1=(d.x, d.y), pt2=(d.x + d.w, d.y + d.h), color=color, thickness=2)
+        cv2.putText(img=image, text=text, org=(d.x + (d.w // 2), d.y - 5), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                    fontScale=0.5, color=color, thickness=2)

@@ -1,16 +1,17 @@
-#-------------------------------------------------------------------------------
-# Classes for workers signal-slot mechanism
-#-------------------------------------------------------------------------------
+"""
+Classes for workers signal-slot mechanism.
+"""
 
 from PyQt5 import QtCore
+from PIL.Image import Image
 
 
 class CommunicateLog(QtCore.QObject):
     myGUI_signal = QtCore.pyqtSignal([str, str])
 
 
-class CommunicateProgress(QtCore.QObject):
-    myGUI_signal = QtCore.pyqtSignal([float])
+class CommunicateData(QtCore.QObject):
+    myGUI_signal = QtCore.pyqtSignal([Image])
 
 
 if __name__ == "__main__":

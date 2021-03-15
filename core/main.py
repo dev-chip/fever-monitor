@@ -20,61 +20,76 @@ from core.lepton import LeptonCamera, to_celsius
 from core.inference import YoloInference
 from core.image_processing import (get_max_array_value,
                                    crop_face_in_image_array,
-                                   scale_resize_image,
                                    to_color_img_array,
                                    to_pil_image,
                                    generate_random_colors,
-                                   draw_boxes)
+                                   draw_face_box)
 
 
-def continuous_capture():
-    lc = LeptonCamera()
+class Face:
+    def __init__(self, detection, temp, img):
+        self.detection = detection
+        self.temp = temp
+        self.img = img
 
-    inf = YoloInference(
-        weights_path=r'G:\Darknet\live2\backup\yolo-obj_best.weights',
-        cfg_path=r'G:\Darknet\live2\yolo-obj.cfg',
-        labels_path=r'G:\Darknet\live2\data\obj.names',
-        use_gpu=False)
-    inf.set_network_dimensions(128, 128)
 
-    class_colors = generate_random_colors(len(inf.labels))
+class FeverMonitor():
+    def __init__(self):
+        self._lepton_camera = LeptonCamera()
 
-    start = time.time()
-    for _ in range(100):
+        self._inf = YoloInference(
+            weights_path=r'G:\Darknet\live2\backup\yolo-obj_best.weights',
+            cfg_path=r'G:\Darknet\live2\yolo-obj.cfg',
+            labels_path=r'G:\Darknet\live2\data\obj.names',
+            use_gpu=False)
+        self._inf.set_network_dimensions(128, 128)
+
+        self._class_colors = generate_random_colors(len(self._inf.labels))
+
+    def run(self):
+        start = time.time()
+
         # capture image
-        lc.capture()
-        img = lc.get_img()
+        self._lepton_camera.capture()
+        img = self._lepton_camera.get_img()
 
         # convert to 8-bit color array
         color_img = to_color_img_array(arr=img, colormap_index=5)
 
         # load into inf object and run inference
-        inf.load_image(color_img)
-        detections, t = inf.run(threshold=0.3)
+        self._inf.load_image(color_img)
+        detections, t = self._inf.run(threshold=0.3)
 
         # draw boxes for each detection
+        faces = []
         for d in detections:
 
-            face_arr = crop_face_in_image_array(img, d.x, d.y, d.w, d.h, y_zoom_out=0, x_zoom_out=0)
-            print(to_celsius(get_max_array_value(arr=face_arr)))
+            # get face max temperature
+            face_temp = to_celsius(get_max_array_value(
+                arr=crop_face_in_image_array(img, d.x, d.y, d.w, d.h, y_zoom_out=0, x_zoom_out=0)))
 
-            color_img = draw_boxes(
-                detections=detections,
+            # get image of whole headl
+            face_img = to_pil_image(
+                crop_face_in_image_array(img, d.x, d.y, d.w, d.h, y_zoom_out=0.3, x_zoom_out=0.3))
+
+            face = Face(detection=d, temp=face_temp, img=face_img)
+            faces.append(face)
+
+
+            # draw box around faces in the image
+            color_img = draw_face_box(
+                face=face,
                 image=color_img,
-                colors=class_colors,
-                labels=inf.labels)
-
-
+                color=self._class_colors[0],
+                text="{}".format(str(round(face_temp, 1))))
 
         # convert image array to PIL image
         pil_image = to_pil_image(color_img)
 
-    end = time.time()
-    elapsed = end - start
-    average = elapsed / 100
-    print("elapsed:\t", elapsed)
-    print("average:\t", average)
-    print("fps:\t\t", 1/average)
+        # calculate elapsed time
+        elapsed = time.time() - start
+
+        return pil_image, faces, elapsed
 
 
 # --------------------- #
@@ -85,7 +100,8 @@ if __name__ == "__main__":
     import cProfile
     pr = cProfile.Profile()
     pr.enable()
-    continuous_capture()
+    fever_monitor = FeverMonitor()
+    fever_monitor.run()
     pr.disable()
     stats = pstats.Stats(pr).sort_stats('cumtime')
     stats.print_stats()
