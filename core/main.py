@@ -76,4 +76,16 @@ def continuous_capture():
     print("average:\t", average)
     print("fps:\t\t", 1/average)
 
-continuous_capture()
+
+# --------------------- #
+#     Profile Code      #
+# --------------------- #
+if __name__ == "__main__":
+    import pstats
+    import cProfile
+    pr = cProfile.Profile()
+    pr.enable()
+    continuous_capture()
+    pr.disable()
+    stats = pstats.Stats(pr).sort_stats('cumtime')
+    stats.print_stats()
