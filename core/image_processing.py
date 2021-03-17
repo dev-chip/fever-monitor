@@ -158,9 +158,9 @@ def crop_image_array(arr, x, y, w, h):
     assert (type(arr) == np.ndarray), \
         "Expected type list or np.ndarray but got {}.".format(type(arr))
     assert (len(arr) > y and len(arr) > y + h), \
-        "y crop index outside bounds of the array."
+        "y crop index outside bounds of the array ({}, {}).".format(y, y + h)
     assert (len(arr[0]) > x and len(arr[0]) > x + w), \
-        "x crop index outside bounds of the array."
+        "x crop index outside bounds of the array ({}, {}).".format(x, x + w)
     return arr[y:y+h, x:x+w]
 
 
@@ -205,13 +205,22 @@ def draw_face_box(face, image, color, text="face"):
 
     TODO:
     """
-    color =
-    cv2.rectangle(image, (face.detection.x, face.detection.y), (face.detection.x + face.detection.w, face.detection.y + face.detection.h), [int(c) for c in color], 1)
+    assert(0 <= face.detection.x < len(image[0])), \
+        "X1 value '{}' out of bounds".format(face.detection.x)
+    assert(0 <= face.detection.y < len(image)), \
+        "Y1 value '{}' out of bounds".format(face.detection.y)
+    assert(0 <= face.detection.x + face.detection.w < len(image[0])), \
+        "X2 value '{}' out of bounds".format(face.detection.x + face.detection.w)
+    assert(0 <= face.detection.y + face.detection.h < len(image)), \
+        "Y2 value '{}' out of bounds".format(face.detection.y + face.detection.h)
+
+    cv2.rectangle(image, (face.detection.x, face.detection.y), (face.detection.x + face.detection.w, face.detection.y + face.detection.h),
+                  [int(c) for c in color], 1)
     cv2.putText(img=image, text=text, org=(face.detection.x+(face.detection.w//2), face.detection.y - 5), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                fontScale=0.4, color=color, thickness=1)
+                fontScale=0.4, color=[int(c) for c in color], thickness=1)
     return image
 
-
+"""
 def draw_boxes(detections, image, colors, labels):
     for d in detections:
         text = "{}: {:.4f}".format(labels[d.class_id], d.confidence)
@@ -219,3 +228,4 @@ def draw_boxes(detections, image, colors, labels):
         cv2.rectangle(img=image, pt1=(d.x, d.y), pt2=(d.x + d.w, d.y + d.h), color=color, thickness=2)
         cv2.putText(img=image, text=text, org=(d.x + (d.w // 2), d.y - 5), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                     fontScale=0.5, color=color, thickness=2)
+"""

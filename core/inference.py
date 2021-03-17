@@ -195,6 +195,7 @@ class YoloInference:
 
 		# ensure at least one detection exists
 		detections = []
+
 		if len(idxs) > 0:
 			# loop over the indexes we are keeping
 			for i in idxs.flatten():
