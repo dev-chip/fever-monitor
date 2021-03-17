@@ -214,15 +214,25 @@ class YoloInference:
 
 
 if __name__ == "__main__":
+	from core.image_processing import draw_boxes, to_pil_image
 	inf = YoloInference(
-		weights_path=r'G:\Darknet\live2\backup\yolo-obj_best.weights',
-		cfg_path=r'G:\Darknet\live2\yolo-obj.cfg',
-		labels_path=r'G:\Darknet\live2\data\obj.names')
+		weights_path=r'G:\Darknet\live1_2\backup\yolo-obj_best.weights',
+		cfg_path=r'G:\Darknet\live1_2\yolo-obj.cfg',
+		labels_path=r'G:\Darknet\live1_2\data\obj.names')
+	inf.set_network_dimensions(160, 128)
 
-	inf.set_network_dimensions(64, 64)
-	inf.load_image_from_file(
-		input_file=r'C:\Users\cooki\OneDrive\Pictures\pic1.jpg')
-	inf.run()
+	labels = ['face']
+	colors = [[255, 255, 0]]  # yellow
+	images_path = r'G:\Documentation\post_training_validation_set\images'
 
-	#output_image = self.draw_boxes(detections, self._image)
-	#cv2.imwrite(r'C:\Users\cooki\OneDrive\Pictures\zzzz.png', output_image)
+	for img_name in os.listdir(images_path):
+		if '.jpg' not in img_name.lower():
+			continue
+
+		arr = cv2.imread(os.path.join(images_path, img_name))
+		inf.load_image(arr)
+		detection_arr, t = inf.run()
+
+		arr = draw_boxes(detections=detection_arr, arr=arr, colors=colors, labels=labels)
+
+		to_pil_image(color_arr=arr).save(r'C:\Users\cooki\OneDrive\Pictures\work\output\{}'.format(img_name))

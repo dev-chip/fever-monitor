@@ -23,7 +23,8 @@ from core.image_processing import (get_max_array_value,
                                    to_color_img_array,
                                    to_pil_image,
                                    generate_random_colors,
-                                   draw_face_box)
+                                   draw_face_box,
+                                   keep_box_within_bounds)
 
 
 class Face:
@@ -46,14 +47,12 @@ class FeverMonitor():
         
         self._class_colors = generate_random_colors(len(self._inf.labels))
 
-
     def run(self):
         start = time.time()
 
         # capture image
         self._lepton_camera.capture()
         img = self._lepton_camera.get_img()
-
 
         # convert to 8-bit color array
         color_img = to_color_img_array(arr=img, colormap_index=5)
@@ -64,26 +63,18 @@ class FeverMonitor():
 
         # correct bounding boxes that are outside the bounds of the image
         for d in detections:
-            if d.x < 0:
-                d.w += d.x
-                d.x = 0
-            if d.y < 0:
-                d.h += d.y
-                d.y = 0
-            if d.x + d.w >= len(color_img[0]):
-                d.w = len(color_img[0]) - 1 - d.x
-            if d.y + d.h >= len(color_img):
-                d.h = len(color_img) - 1 - d.y
+            d.x, d.y, d.w, d.h = keep_box_within_bounds(img, d.x, d.y, d.w, d.h)
 
-        # draw boxes for each detection
         faces = []
+
+        # for each face detected
         for d in detections:
 
             # get face max temperature
             face_temp = to_celsius(get_max_array_value(
                 arr=crop_face_in_image_array(img, d.x, d.y, d.w, d.h, y_zoom_out=0, x_zoom_out=0)))
 
-            # get image of whole headl
+            # zoom out of face slightly image of whole head
             face_img = to_pil_image(
                 crop_face_in_image_array(img, d.x, d.y, d.w, d.h, y_zoom_out=0.3, x_zoom_out=0.3))
 

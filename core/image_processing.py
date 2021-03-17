@@ -113,6 +113,37 @@ def scale_resize_image(img, width):
     return img.resize((width, round(width * aspect_ratio)))
 
 
+def keep_box_within_bounds(arr, x, y, w, h):
+    """
+    Sets box coordinates to be within the bounds of an array.
+
+    Modify box coordinates that are out-of-bounds of the passed
+    array to be the closest correct value.
+
+    Params:
+        color_arr: 3D image array
+        TODO
+
+    Returns:
+        TODO
+    """
+    max_y = len(arr) - 1
+    max_x = len(arr[0]) - 1
+
+    if x < 0:
+        w += x
+        x = 0
+    if y < 0:
+        h += y
+        y = 0
+    if x + w > max_x:
+        w = max_x - x
+    if y + h > max_y:
+        h = max_y - y
+
+    return x, y, w, h
+
+
 def crop_face_in_image_array(arr, x, y, w, h, x_zoom_out=0.33, y_zoom_out=0.33):
     """
     TODO
@@ -131,14 +162,7 @@ def crop_face_in_image_array(arr, x, y, w, h, x_zoom_out=0.33, y_zoom_out=0.33):
 
     # if the zoom-out has caused the indexes to go out-of-bounds, set
     # indexes to be their closest in-bound value
-    if 0 > y:
-        y = 0
-    if 0 > x:
-        x = 0
-    if len(arr) <= y + h:
-        h = len(arr) - y - 1
-    if len(arr[0]) <= x + w:
-        w = len(arr[0]) - x - 1
+    x, y, w, h = keep_box_within_bounds(arr, x, y, w, h)
 
     # crop and return
     return crop_image_array(
@@ -199,33 +223,35 @@ def generate_random_colors(n):
     return np.random.randint(0, 255, size=(n, 3), dtype="uint8")
 
 
-def draw_face_box(face, image, color, text="face"):
+def draw_face_box(face, arr, color, text="face"):
     """
     Draws boxes around detections... TODO: short des
 
     TODO:
     """
-    assert(0 <= face.detection.x < len(image[0])), \
-        "X1 value '{}' out of bounds".format(face.detection.x)
-    assert(0 <= face.detection.y < len(image)), \
-        "Y1 value '{}' out of bounds".format(face.detection.y)
-    assert(0 <= face.detection.x + face.detection.w < len(image[0])), \
-        "X2 value '{}' out of bounds".format(face.detection.x + face.detection.w)
-    assert(0 <= face.detection.y + face.detection.h < len(image)), \
-        "Y2 value '{}' out of bounds".format(face.detection.y + face.detection.h)
+    # correct out-of-bounds values
+    face.detection.x, face.detection.y, face.detection.w, face.detection.h =\
+        keep_box_within_bounds(arr, face.detection.x, face.detection.y, face.detection.w, face.detection.h)
 
-    cv2.rectangle(image, (face.detection.x, face.detection.y), (face.detection.x + face.detection.w, face.detection.y + face.detection.h),
+    cv2.rectangle(arr, (face.detection.x, face.detection.y), (face.detection.x + face.detection.w, face.detection.y + face.detection.h),
                   [int(c) for c in color], 1)
-    cv2.putText(img=image, text=text, org=(face.detection.x+(face.detection.w//2), face.detection.y - 5), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+    cv2.putText(img=arr, text=text, org=(face.detection.x+(face.detection.w//2), face.detection.y - 5), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                 fontScale=0.4, color=[int(c) for c in color], thickness=1)
-    return image
+    return arr
 
-"""
-def draw_boxes(detections, image, colors, labels):
+
+def draw_boxes(detections, arr, colors, labels, show_txt=True):
     for d in detections:
-        text = "{}: {:.4f}".format(labels[d.class_id], d.confidence)
+        # correct out-of-bounds values
+        d.x, d.y, d.w, d.h = keep_box_within_bounds(arr, d.x, d.y, d.w, d.h)
+
+        # draw box
         color = [int(c) for c in colors[d.class_id]]
-        cv2.rectangle(img=image, pt1=(d.x, d.y), pt2=(d.x + d.w, d.y + d.h), color=color, thickness=2)
-        cv2.putText(img=image, text=text, org=(d.x + (d.w // 2), d.y - 5), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                    fontScale=0.5, color=color, thickness=2)
-"""
+        cv2.rectangle(img=arr, pt1=(d.x, d.y), pt2=(d.x + d.w, d.y + d.h), color=color, thickness=2)
+
+        # draw text
+        if show_txt:
+            text = "{}: {:.2f}".format(labels[d.class_id], d.confidence)
+            cv2.putText(img=arr, text=text, org=(d.x + (d.w // 2), d.y - 5), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                        fontScale=0.5, color=color, thickness=2)
+    return arr
