@@ -34,15 +34,15 @@ class Face:
         self.img = img
 
 
-class FeverMonitor():
-    def __init__(self):
+class FeverMonitor:
+    def __init__(self, weights_path, cfg_path, labels_path, use_gpu=False):
         self._lepton_camera = LeptonCamera()
 
         self._inf = YoloInference(
-            weights_path=r'G:\Darknet\live2_2\backup\yolo-obj_best.weights',
-            cfg_path=r'G:\Darknet\live2_2\yolo-obj.cfg',
-            labels_path=r'G:\Darknet\live2_2\data\obj.names',
-            use_gpu=False)
+            weights_path=weights_path,
+            cfg_path=cfg_path,
+            labels_path=labels_path,
+            use_gpu=use_gpu)
         self._inf.set_network_dimensions(128, 128)
         
         self._class_colors = generate_random_colors(len(self._inf.labels))
@@ -59,7 +59,7 @@ class FeverMonitor():
 
         # load into inf object and run inference
         self._inf.load_image(color_img)
-        detections, t = self._inf.run(threshold=0.3)
+        detections, inference_time = self._inf.run(threshold=0.3)
 
         # correct bounding boxes that are outside the bounds of the image
         for d in detections:
@@ -84,7 +84,7 @@ class FeverMonitor():
             # draw box around faces in the image
             color_img = draw_face_box(
                 face=face,
-                image=color_img,
+                arr=color_img,
                 color=self._class_colors[0],
                 text="{}".format(str(round(face_temp, 1))))
 
@@ -105,8 +105,18 @@ if __name__ == "__main__":
     import cProfile
     pr = cProfile.Profile()
     pr.enable()
-    fever_monitor = FeverMonitor()
-    fever_monitor.run()
+    # fever_monitor = FeverMonitor(
+    #     cfg_path=r'G:\Darknet\live2_2\yolo-obj.cfg',
+    #     labels_path=r'G:\Darknet\live2_2\data\obj.names',
+    #     weights_path=r'G:\Darknet\live2_2\backup\yolo-obj_best.weights',
+    #     use_gpu=False)
+    fever_monitor = FeverMonitor(
+        cfg_path=r'G:\Darknet\tiny_3l\tiny_yolo_3l.cfg',
+        labels_path=r'G:\Darknet\tiny_3l\data\obj.names',
+        weights_path=r'G:\Darknet\tiny_3l\backup\tiny_yolo_3l_best.weights',
+        use_gpu=False)
+    for i in range(100):
+        fever_monitor.run()
     pr.disable()
     stats = pstats.Stats(pr).sort_stats('cumtime')
     stats.print_stats()
