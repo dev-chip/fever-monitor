@@ -68,6 +68,13 @@ class MainWindow(Window):
         self.ui.pushButton_start.setEnabled(True)
         self.ui.pushButton_stop.setEnabled(False)
 
+        '''
+        QThread provides a high-level application programming interface (API) to manage threads.
+        This API includes signals, such as .started() and .finished(), that are emitted when the
+        thread starts and finishes. It also includes methods and slots, such as .start(), .wait(),
+        .exit(), .quit(), .isFinished(), and .isRunning().
+        '''
+
     def log_thread_callback(self, text, log_type=""):
         """
             Logs messages recieved from a thread

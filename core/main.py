@@ -65,7 +65,7 @@ class FeverMonitor:
         for d in detections:
             d.x, d.y, d.w, d.h = keep_box_within_bounds(img, d.x, d.y, d.w, d.h)
 
-        faces = []
+        face_objects = []
 
         # for each face detected
         for d in detections:
@@ -79,7 +79,7 @@ class FeverMonitor:
                 crop_face_in_image_array(img, d.x, d.y, d.w, d.h, y_zoom_out=0.3, x_zoom_out=0.3))
 
             face = Face(detection=d, temp=face_temp, img=face_img)
-            faces.append(face)
+            face_objects.append(face)
 
             # draw box around faces in the image
             color_img = draw_face_box(
@@ -94,7 +94,7 @@ class FeverMonitor:
         # calculate elapsed time
         elapsed = time.time() - start
 
-        return pil_image, faces, elapsed
+        return pil_image, face_objects, elapsed
 
 
 # --------------------- #

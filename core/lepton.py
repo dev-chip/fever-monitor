@@ -56,7 +56,7 @@ class LeptonCamera:
 
     def get_img(self):
         """
-        Returns thermal image captured.
+        Returns the raw thermal image captured.
 
         Returns:
             np.float32: thermal data array
@@ -70,7 +70,7 @@ class LeptonCamera:
 
     def get_uptime(self):
         """
-        Returns Lepton uptime in seconds.
+        Returns Lepton camera uptime in seconds.
 
         Returns:
              int: camera uptime in seconds

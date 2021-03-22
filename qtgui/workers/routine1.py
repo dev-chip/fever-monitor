@@ -21,10 +21,15 @@ class LoadThread(threading.Thread):
         self.log = init_signal_logger(self.logCom.myGUI_signal)
 
         self.fever_monitor = FeverMonitor(
-            cfg_path=r'G:\Darknet\live2_2\yolo-obj.cfg',
-            labels_path=r'G:\Darknet\live2_2\data\obj.names',
-            weights_path=r'G:\Darknet\live2_2\backup\yolo-obj_best.weights',
-            use_gpu=False)
+           cfg_path=r'G:\Darknet\live2_2\yolo-obj.cfg',
+           labels_path=r'G:\Darknet\live2_2\data\obj.names',
+           weights_path=r'G:\Darknet\live2_2\backup\yolo-obj_best.weights',
+           use_gpu=False)
+        # self.fever_monitor = FeverMonitor(
+        #     cfg_path=r'G:\Darknet\tiny_3l\tiny_yolo_3l.cfg',
+        #     labels_path=r'G:\Darknet\tiny_3l\data\obj.names',
+        #     weights_path=r'G:\Darknet\tiny_3l\backup\tiny_yolo_3l_best.weights',
+        #     use_gpu=False)
 
         self.data = CommunicateData()
         self.data.myGUI_signal.connect(data_callback)

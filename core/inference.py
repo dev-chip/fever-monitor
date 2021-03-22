@@ -84,8 +84,6 @@ class YoloInference:
 			self._net.setPreferableBackend(cv2.dnn.DNN_BACKEND_DEFAULT)
 			self._net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
 
-
-
 	def set_network_dimensions(self, w, h):
 		"""
 		Sets the width and height of the network.
