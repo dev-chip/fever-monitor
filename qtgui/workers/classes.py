@@ -10,6 +10,10 @@ class CommunicateLog(QtCore.QObject):
     myGUI_signal = QtCore.pyqtSignal([str, str])
 
 
+class CommunicateFatalError(QtCore.QObject):
+    myGUI_signal = QtCore.pyqtSignal([Exception])
+
+
 class CommunicateData(QtCore.QObject):
     myGUI_signal = QtCore.pyqtSignal([Image])
 

@@ -29,6 +29,8 @@ class LeptonCamera:
         self._device_id = None
 
         self._find_lepton()
+        if self._device_id is None:
+            raise ValueError("Lepton camera not connected.")
 
     def capture(self):
         """
@@ -43,7 +45,7 @@ class LeptonCamera:
         if self._device_id is None:
             self._find_lepton()
         if self._device_id is None:
-            raise ValueError("Lepton not connected.")
+            raise ValueError("Lepton camera not connected.")
 
         # Grab image and telemetry data
         try:
@@ -94,6 +96,13 @@ class LeptonCamera:
         assert (self._img is not None), \
             "No telemetry data collected."
         return self._camera.ffc_elapsed_ms//1000
+
+    def lepton_connected(self):
+        """
+        TODO
+        """
+        self._find_lepton()
+        return self._device_id is not None
 
     def _find_lepton(self):
         """

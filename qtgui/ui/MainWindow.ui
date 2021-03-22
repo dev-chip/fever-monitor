@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>785</width>
-    <height>646</height>
+    <height>771</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -381,7 +381,7 @@
       <property name="minimumSize">
        <size>
         <width>0</width>
-        <height>80</height>
+        <height>200</height>
        </size>
       </property>
       <property name="maximumSize">
@@ -412,25 +412,73 @@
      <height>21</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuLog_Level">
-    <property name="title">
-     <string>Log Level</string>
-    </property>
-    <addaction name="actionDISABLE"/>
-    <addaction name="actionWARNING"/>
-    <addaction name="actionINFO"/>
-    <addaction name="actionDEBUG"/>
-    <addaction name="actionVERBOSE"/>
-   </widget>
    <widget class="QMenu" name="menuDeveloper">
     <property name="title">
      <string>Developer</string>
     </property>
-    <addaction name="actionGUI_console_log"/>
+    <widget class="QMenu" name="menuLog_Level_2">
+     <property name="title">
+      <string>Log Level</string>
+     </property>
+     <addaction name="actionDISABLE"/>
+     <addaction name="actionWARNING"/>
+     <addaction name="actionINFO"/>
+     <addaction name="actionDEBUG"/>
+     <addaction name="actionVERBOSE"/>
+    </widget>
+    <addaction name="action_show_log_view"/>
+    <addaction name="menuLog_Level_2"/>
    </widget>
-   <addaction name="menuLog_Level"/>
    <addaction name="menuDeveloper"/>
   </widget>
+  <action name="actionDISABLE2">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>DISABLE</string>
+   </property>
+  </action>
+  <action name="actionWARNING2">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>WARNING</string>
+   </property>
+  </action>
+  <action name="actionINFO2">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>INFO</string>
+   </property>
+  </action>
+  <action name="actionDEBUG2">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>DEBUG</string>
+   </property>
+  </action>
+  <action name="actionVERBOSE2">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>VERBOSE</string>
+   </property>
+  </action>
+  <action name="action_show_log_view">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show log view</string>
+   </property>
+  </action>
   <action name="actionDISABLE">
    <property name="checkable">
     <bool>true</bool>
@@ -469,14 +517,6 @@
    </property>
    <property name="text">
     <string>VERBOSE</string>
-   </property>
-  </action>
-  <action name="actionGUI_console_log">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>GUI console log</string>
    </property>
   </action>
  </widget>

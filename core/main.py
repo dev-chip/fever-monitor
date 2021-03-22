@@ -49,8 +49,14 @@ class FeverMonitor:
     def run(self):
         start = time.time()
 
-        # capture image
-        self._lepton_camera.capture()
+        try:
+            # capture image
+            self._lepton_camera.capture()
+        except Exception as e:
+            if not self._lepton_camera.lepton_connected():
+                raise Exception("Lepton camera disconnected.")
+            raise e
+
         img = self._lepton_camera.get_img()
 
         # convert to 8-bit color array
