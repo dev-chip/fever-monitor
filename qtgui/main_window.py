@@ -1,24 +1,26 @@
-# -------------------------------------------------------------------------------
-# Name:        main_window.py
-# Purpose:     Main window example.
-#
-# Author:      James Cook
-#
-# Created:     30/09/2020
-# Copyright:   (c) James Cook 2020
-# -------------------------------------------------------------------------------
+"""
+Application main window.
+"""
 
+__author__ = "James Cook"
+__copyright__ = "Copyright 2021"
+__license__ = "GNU General Public License v3.0"
+__version__ = "1.0.0"
+__maintainer__ = "James Cook"
+__email__ = "contact@cookjames.uk"
+
+
+# external module imports
+from PyQt5.QtGui import QPixmap
+from PIL.ImageQt import ImageQt
 from qtgui.gen import MainWindowGenerated
 from qtgui.thread import thread_log, kill_thread
 from qtgui.window import Window
 from qtgui.logger import init_console_logger
-
 from qtgui.workers.routine1 import LoadThread
 
+# initialise the logger
 logger = init_console_logger(name="gui")
-
-from PyQt5.QtGui import QPixmap
-from PIL.ImageQt import ImageQt
 
 
 class MainWindow(Window):

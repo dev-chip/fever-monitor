@@ -1,6 +1,14 @@
-#
-# Functions for reading and writing configs
-#
+"""
+Functions for reading and writing config files.
+"""
+
+__author__ = "James Cook"
+__copyright__ = "Copyright 2021"
+__license__ = "GNU General Public License v3.0"
+__version__ = "1.0.0"
+__maintainer__ = "James Cook"
+__email__ = "contact@cookjames.uk"
+
 
 import os
 import configparser

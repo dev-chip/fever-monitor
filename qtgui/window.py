@@ -1,12 +1,17 @@
-# -------------------------------------------------------------------------------
-# Name:        window.py
-# Purpose:     superclass window
-#
-# Author:      g852706 - James Cook
-#
-# Created:     03/03/2020
-# Copyright:   (c) Airbus Helicopters (ETZWM) 2020
-# -------------------------------------------------------------------------------
+"""
+Superclass for application windows.
+
+Implements a log-level options and a text-edit
+logger to display log messages to the GUI.
+"""
+
+__author__ = "James Cook"
+__copyright__ = "Copyright 2021"
+__license__ = "GNU General Public License v3.0"
+__version__ = "1.0.0"
+__maintainer__ = "James Cook"
+__email__ = "contact@cookjames.uk"
+
 
 from PyQt5.QtWidgets import QMainWindow
 

@@ -1,12 +1,14 @@
-# -------------------------------------------------------------------------------
-# Name:        text_edit_logger.py
-# Purpose:     Class definition for logging to a Qt textView widget
-#
-# Author:      g852706 - James Cook
-#
-# Created:     03/03/2020
-# Copyright:   (c) Airbus Helicopters (ETZWM) 2020
-# -------------------------------------------------------------------------------
+"""
+GUI logger class using a text-edit widget.
+"""
+
+__author__ = "James Cook"
+__copyright__ = "Copyright 2021"
+__license__ = "GNU General Public License v3.0"
+__version__ = "1.0.0"
+__maintainer__ = "James Cook"
+__email__ = "contact@cookjames.uk"
+
 
 from logging import Handler, Formatter
 from PyQt5 import QtGui

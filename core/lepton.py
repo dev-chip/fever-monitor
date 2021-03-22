@@ -11,7 +11,6 @@ __license__ = "GNU General Public License v3.0"
 __version__ = "1.0.0"
 __maintainer__ = "James Cook"
 __email__ = "contact@cookjames.uk"
-__status__ = "Prototype"
 
 
 # external module imports

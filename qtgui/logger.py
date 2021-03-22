@@ -1,13 +1,17 @@
-# -------------------------------------------------------------------------------
-# Name:        logger.py
-# Purpose:     Handles logger initialisation and immitates a logger
-#              object for threads to callback their log messages.
-#
-# Author:      g852706 - James Cook
-#
-# Created:     03/03/2020
-# Copyright:   (c) Airbus Helicopters (ETZWM) 2020
-# -------------------------------------------------------------------------------
+"""
+Logger related classes and functions.
+
+Handles  logger initialisation and imitates a logger
+object for threads to callback their log messages.
+"""
+
+__author__ = "James Cook"
+__copyright__ = "Copyright 2021"
+__license__ = "GNU General Public License v3.0"
+__version__ = "1.0.0"
+__maintainer__ = "James Cook"
+__email__ = "contact@cookjames.uk"
+
 
 import logging
 
