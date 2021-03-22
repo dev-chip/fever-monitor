@@ -17,7 +17,8 @@ from qtgui.gen import MainWindowGenerated
 from qtgui.thread import thread_log, kill_thread
 from qtgui.window import Window
 from qtgui.logger import init_console_logger
-from qtgui.workers.routine1 import LoadThread
+from qtgui.workers.worker1 import Worker1
+from qtgui.show_dialog import show_message_dialog
 
 # initialise the logger
 logger = init_console_logger(name="gui")
@@ -38,6 +39,10 @@ class MainWindow(Window):
         logger.verbose("Initialising signals")
         self.init_signals()
 
+        logger.verbose("Hiding logview")
+        self.ui.action_show_log_view.setChecked(False)
+        self.update_log_view_visibility()
+
         self.t = None
         self.ui.pushButton_start.setEnabled(True)
         self.ui.pushButton_stop.setEnabled(False)
@@ -50,6 +55,10 @@ class MainWindow(Window):
         """
         self.ui.pushButton_start.clicked.connect(self.start)
         self.ui.pushButton_stop.clicked.connect(self.stop)
+        self.ui.action_show_log_view.triggered.connect(self.update_log_view_visibility)
+
+    def update_log_view_visibility(self):
+        self.ui.textEdit.setVisible(self.ui.action_show_log_view.isChecked())
 
     def start(self):
         """
@@ -57,9 +66,9 @@ class MainWindow(Window):
         """
         # start thread
         logger.debug("Starting thread...")
-        self.t = LoadThread(self.log_thread_callback, self.data_callback)
+        self.t = Worker1(self.log_thread_callback, self.data_callback, self.error_callback)
         self.t.start()
-        logger.info("Thread started")
+        logger.info("Started ")
         self.ui.pushButton_start.setEnabled(False)
         self.ui.pushButton_stop.setEnabled(True)
 
@@ -85,25 +94,23 @@ class MainWindow(Window):
         thread_log(logger, text, log_type)
 
     def data_callback(self, image):
-        logger.debug("Data recieved from thread")
+        logger.verbose("Data received from thread")
         w = self.ui.label_thermal_stream.width()
 
-        logger.debug("1")
         image_qt = ImageQt(image)
         pixmap = QPixmap.fromImage(image_qt).scaledToWidth(w)
 
-        logger.debug("2")
-        self.ui.label_thermal_stream.setScaledContents(True);
+        #self.ui.label_thermal_stream.setScaledContents(True)
         self.ui.label_thermal_stream.setPixmap(pixmap)
-
-        logger.debug("3")
         self.ui.label_thermal_stream.setMask(pixmap.mask())
-        #self.ui.label_thermal_stream.show()
 
     def error_callback(self, text):
-        self.stop()
-        logger.error(text)
+        logger.error(str(text))
+        show_message_dialog(text="Error: {}".format(text), dimensions=(300, 100))
+        self.t = None
+        self.ui.pushButton_start.setEnabled(True)
+        self.ui.pushButton_stop.setEnabled(False)
 
 
 if __name__ == "__main__":
-    print ("No module test implemented.")
+    print("No module test implemented.")

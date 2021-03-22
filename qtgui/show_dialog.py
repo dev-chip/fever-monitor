@@ -15,13 +15,14 @@ from qtgui.gen import (messageGenerated,
                  confirmGenerated)
 
 
-def show_message_dialog(text):
+def show_message_dialog(text, dimensions=None):
     """
         Shows a generic message dialog to the user displaying the text
         passed. Utilizes word wrap.
     """
-
     dialog = QDialog()
+    if dimensions is not None:
+        dialog.setFixedSize(dimensions[0], dimensions[1])
     interface = messageGenerated.Ui_Dialog()
     interface.setupUi(dialog)
     interface.label.setText(text)
