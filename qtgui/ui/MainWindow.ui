@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>785</width>
-    <height>771</height>
+    <width>807</width>
+    <height>651</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -128,7 +128,7 @@
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_stop_2">
+          <widget class="QPushButton" name="pushButton_settings">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -171,8 +171,8 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>600</width>
-          <height>400</height>
+          <width>640</width>
+          <height>480</height>
          </size>
         </property>
         <property name="text">
@@ -381,13 +381,13 @@
       <property name="minimumSize">
        <size>
         <width>0</width>
-        <height>200</height>
+        <height>0</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
         <width>16777215</width>
-        <height>80</height>
+        <height>0</height>
        </size>
       </property>
       <property name="font">
@@ -408,7 +408,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>785</width>
+     <width>807</width>
      <height>21</height>
     </rect>
    </property>

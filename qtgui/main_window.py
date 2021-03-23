@@ -58,7 +58,13 @@ class MainWindow(Window):
         self.ui.action_show_log_view.triggered.connect(self.update_log_view_visibility)
 
     def update_log_view_visibility(self):
-        self.ui.textEdit.setVisible(self.ui.action_show_log_view.isChecked())
+        """
+            Sets the visibility of the textEdit logger.
+        """
+        show = self.ui.action_show_log_view.isChecked()
+        self.ui.textEdit.setVisible(show)
+        self.ui.textEdit.setMinimumSize(*([100, 150] if show else [100, 0]))
+        self.ui.textEdit.setMaximumSize(*([9999, 150] if show else [9999, 0]))
 
     def start(self):
         """
@@ -79,13 +85,6 @@ class MainWindow(Window):
         self.ui.pushButton_start.setEnabled(True)
         self.ui.pushButton_stop.setEnabled(False)
 
-        '''
-        QThread provides a high-level application programming interface (API) to manage threads.
-        This API includes signals, such as .started() and .finished(), that are emitted when the
-        thread starts and finishes. It also includes methods and slots, such as .start(), .wait(),
-        .exit(), .quit(), .isFinished(), and .isRunning().
-        '''
-
     def log_thread_callback(self, text, log_type=""):
         """
             Logs messages recieved from a thread
@@ -95,12 +94,19 @@ class MainWindow(Window):
 
     def data_callback(self, image):
         logger.verbose("Data received from thread")
-        w = self.ui.label_thermal_stream.width()
+
+        img_width, img_height = image.size
+        aspect_ratio = img_width / img_height
+
+        label_width = self.ui.label_thermal_stream.width()
+        label_height = self.ui.label_thermal_stream.height()
 
         image_qt = ImageQt(image)
-        pixmap = QPixmap.fromImage(image_qt).scaledToWidth(w)
+        if label_width / label_height < aspect_ratio:
+            pixmap = QPixmap.fromImage(image_qt).scaledToWidth(label_width)
+        else:
+            pixmap = QPixmap.fromImage(image_qt).scaledToHeight(label_height)
 
-        #self.ui.label_thermal_stream.setScaledContents(True)
         self.ui.label_thermal_stream.setPixmap(pixmap)
         self.ui.label_thermal_stream.setMask(pixmap.mask())
 
