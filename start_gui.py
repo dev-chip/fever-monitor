@@ -10,6 +10,7 @@ __maintainer__ = "James Cook"
 __email__ = "contact@cookjames.uk"
 __status__ = "Prototype"
 
+
 from PyQt5.QtWidgets import QApplication
 import sys
 
@@ -23,11 +24,10 @@ version_id = 1.0
 
 
 def print_pretty_name():
-    print (
-            "    ***************************************************" + "\n"
-            "                  Fever Monitor - VERSION %s          " % str(version_id) + "\n"
-            "    ***************************************************"
-           )
+    print(
+           "    ***************************************************" + "\n"
+           "                  Fever Monitor - VERSION %s          " % str(version_id) + "\n"
+           "    ***************************************************")
 
 
 if __name__ == '__main__':
@@ -45,4 +45,5 @@ if __name__ == '__main__':
     app.exec_()
 
     # exit
+    controller.exit_safely()
     sys.exit(0)

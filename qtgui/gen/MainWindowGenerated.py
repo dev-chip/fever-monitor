@@ -205,6 +205,9 @@ class Ui_MainWindow(object):
         self.actionVERBOSE = QtWidgets.QAction(MainWindow)
         self.actionVERBOSE.setCheckable(True)
         self.actionVERBOSE.setObjectName("actionVERBOSE")
+        self.actionShow_model_confidence_instead_of_face_temperature = QtWidgets.QAction(MainWindow)
+        self.actionShow_model_confidence_instead_of_face_temperature.setCheckable(True)
+        self.actionShow_model_confidence_instead_of_face_temperature.setObjectName("actionShow_model_confidence_instead_of_face_temperature")
         self.menuLog_Level_2.addAction(self.actionDISABLE)
         self.menuLog_Level_2.addAction(self.actionWARNING)
         self.menuLog_Level_2.addAction(self.actionINFO)
@@ -212,6 +215,8 @@ class Ui_MainWindow(object):
         self.menuLog_Level_2.addAction(self.actionVERBOSE)
         self.menuDeveloper.addAction(self.action_show_log_view)
         self.menuDeveloper.addAction(self.menuLog_Level_2.menuAction())
+        self.menuDeveloper.addSeparator()
+        self.menuDeveloper.addAction(self.actionShow_model_confidence_instead_of_face_temperature)
         self.menuBar.addAction(self.menuDeveloper.menuAction())
 
         self.retranslateUi(MainWindow)
@@ -236,3 +241,4 @@ class Ui_MainWindow(object):
         self.actionINFO.setText(_translate("MainWindow", "INFO"))
         self.actionDEBUG.setText(_translate("MainWindow", "DEBUG"))
         self.actionVERBOSE.setText(_translate("MainWindow", "VERBOSE"))
+        self.actionShow_model_confidence_instead_of_face_temperature.setText(_translate("MainWindow", "Display confidence instead of temperature"))

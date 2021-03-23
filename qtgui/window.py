@@ -30,11 +30,14 @@ class Window(QMainWindow):
     """
     def __init__(self):
         self.ui = None
+        self.config = None
 
     def init_GUI_logger(self, logger):
         """
             Initialises the textEdit logger.
         """
+        self.config = get_configs()
+
         if self.ui != None:
             try:
                 logger.addHandler(QPlainTextEditLogger(self.ui.textEdit))
@@ -130,9 +133,8 @@ class Window(QMainWindow):
         self.save_log_level(5)
 
     def save_log_level(self, level):
-        config = get_configs()
-        config["COMMON"]["log_level"] = str(level)
-        overwrite_config(config)
+        self.config["COMMON"]["log_level"] = str(level)
+        overwrite_config(self.config)
         logger.debug("Log level saved")
 
 if __name__ == "__main__":

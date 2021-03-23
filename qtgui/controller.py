@@ -22,9 +22,20 @@ class Controller:
         self.main = MainWindow()
 
     def show_main(self):
+        """
+        Shows the main windows.
+        """
         logger.debug("Showing main window")
         self.main.show()
 
+    def exit_safely(self):
+        """
+        Stops execution safely.
+        """
+        if self.main is not None:
+            # kills threads safely
+            self.main.stop()
+
 
 if __name__ == "__main__":
-    print ("No module test implemented.")
+    print("No module test implemented.")

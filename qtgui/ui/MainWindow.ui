@@ -428,6 +428,8 @@
     </widget>
     <addaction name="action_show_log_view"/>
     <addaction name="menuLog_Level_2"/>
+    <addaction name="separator"/>
+    <addaction name="actionShow_model_confidence_instead_of_face_temperature"/>
    </widget>
    <addaction name="menuDeveloper"/>
   </widget>
@@ -517,6 +519,14 @@
    </property>
    <property name="text">
     <string>VERBOSE</string>
+   </property>
+  </action>
+  <action name="actionShow_model_confidence_instead_of_face_temperature">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Display confidence instead of temperature</string>
    </property>
   </action>
  </widget>

@@ -222,7 +222,7 @@ def generate_random_colors(n):
     return np.random.randint(0, 255, size=(n, 3), dtype="uint8")
 
 
-def draw_face_box(face, arr, color, text="face"):
+def draw_face_box(face, arr, color, text="face", thickness=1):
     """
     Draws boxes around detections... TODO: short des
 
@@ -233,9 +233,9 @@ def draw_face_box(face, arr, color, text="face"):
         keep_box_within_bounds(arr, face.detection.x, face.detection.y, face.detection.w, face.detection.h)
 
     cv2.rectangle(arr, (face.detection.x, face.detection.y), (face.detection.x + face.detection.w, face.detection.y + face.detection.h),
-                  [int(c) for c in color], 1)
+                  [int(c) for c in color], thickness)
     cv2.putText(img=arr, text=text, org=(face.detection.x+(face.detection.w//2), face.detection.y - 5), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                fontScale=0.4, color=[int(c) for c in color], thickness=1)
+                fontScale=0.4, color=[int(c) for c in color], thickness=thickness)
     return arr
 
 
