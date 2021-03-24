@@ -208,20 +208,6 @@ def get_max_array_value(arr):
     return np.amax(arr)
 
 
-def generate_random_colors(n):
-    """
-    Generates an array of random 8-bit colors.
-
-    Parameters:
-        n: number of colors to generate
-
-    Returns:
-        np.ndarray: colors generated
-    """
-    np.random.seed(4)
-    return np.random.randint(0, 255, size=(n, 3), dtype="uint8")
-
-
 def draw_face_box(face, arr, color, text="face", box_thickness=1, text_thickness=1):
     """
     Draws boxes around detections... TODO: short des
@@ -248,29 +234,3 @@ def draw_face_box(face, arr, color, text="face", box_thickness=1, text_thickness
                 color=color,
                 thickness=text_thickness)
     return arr
-
-
-# def draw_boxes(detections, arr, colors, labels, show_txt=True):
-#     for d in detections:
-#         # correct out-of-bounds values
-#         d.x, d.y, d.w, d.h = keep_box_within_bounds(arr, d.x, d.y, d.w, d.h)
-#
-#         # draw box
-#         color = [int(c) for c in colors[d.class_id]]
-#         cv2.rectangle(img=arr,
-#                       pt1=(d.x, d.y),
-#                       pt2=(d.x + d.w, d.y + d.h),
-#                       color=color,
-#                       thickness=2)
-#
-#         # draw text
-#         if show_txt:
-#             text = "{}: {:.2f}".format(labels[d.class_id], d.confidence)
-#             cv2.putText(img=arr,
-#                         text=text,
-#                         org=(d.x + (d.w // 2), d.y - 5),
-#                         fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-#                         fontScale=0.5,
-#                         color=color,
-#                         thickness=2)
-#     return arr

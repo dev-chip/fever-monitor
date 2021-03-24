@@ -62,6 +62,30 @@ class MainWindow(Window):
         self.update_log_view_visibility()
         self.update_fps_frame_visibility()
 
+        self._face_labels = [self.ui.label_face_1,
+                             self.ui.label_face_2,
+                             self.ui.label_face_3,
+                             self.ui.label_face_4,
+                             self.ui.label_face_5,
+                             self.ui.label_face_6]
+
+        self._face_frames = [self.ui.frame_face_1,
+                             self.ui.frame_face_2,
+                             self.ui.frame_face_3,
+                             self.ui.frame_face_4,
+                             self.ui.frame_face_5,
+                             self.ui.frame_face_6]
+
+        self._face_temps = [self.ui.label_face_temp_1,
+                            self.ui.label_face_temp_2,
+                            self.ui.label_face_temp_3,
+                            self.ui.label_face_temp_4,
+                            self.ui.label_face_temp_5,
+                            self.ui.label_face_temp_6]
+
+        # pointer used to determine which label should be used to display the next face
+        self._face_label_pointer = 0
+
         self._worker_thread = None
         self._last_violation = 0
 
@@ -91,7 +115,7 @@ class MainWindow(Window):
     def update_fps_frame_visibility(self):
         try:
             self.ui.frame_fps.setVisible(bool(int(self.config["SETTINGS"]["fps"])))
-        except ValueError:
+        except ValueError as e:
             logger.error("Failed to set frame_fps visibility: {}".format(e))
             show_message_dialog(text="Error: Failed to change FPS frame visibility.", dimensions=None)
 
@@ -164,6 +188,7 @@ class MainWindow(Window):
         for face in faces:
             if face.over_threshold:
                 violation = True
+                self.display_face(face.img, face.temp)
 
         if (violation
                 and not mixer.music.get_busy()  # do not interrupt current player
@@ -226,6 +251,41 @@ class MainWindow(Window):
                 logger.error("Failed to load audio file: {}".format(e))
                 return
             mixer.music.play()
+
+    def display_face(self, image, temp):
+        # remove red border from last frame
+        self._face_frames[self._face_label_pointer].setStyleSheet('')
+
+        # point to next frame
+        self._face_label_pointer = (self._face_label_pointer + 1) % (len(self._face_labels))
+
+        # make border red
+        self._face_frames[self._face_label_pointer].setStyleSheet('QFrame { border: 3px solid red}')
+
+        # scale image while keeping aspect ratio
+        img_width, img_height = image.size
+        aspect_ratio = img_width / img_height
+        label_width = self._face_labels[self._face_label_pointer].width()
+        label_height = self._face_labels[self._face_label_pointer].height()
+        image_qt = ImageQt(image)
+        if label_width / label_height < aspect_ratio:
+            pixmap = QPixmap.fromImage(image_qt).scaledToWidth(label_width)
+        else:
+            pixmap = QPixmap.fromImage(image_qt).scaledToHeight(label_height)
+
+        # set image
+        self._face_labels[self._face_label_pointer].setPixmap(pixmap)
+        self._face_labels[self._face_label_pointer].setMask(pixmap.mask())
+
+        # set temperature
+        unit_initial = self.config["SETTINGS"]["temp_unit"][0]
+        if unit_initial == "C":
+            unit_text = '\xB0C'
+        elif unit_initial == "F":
+            unit_text = '\xB0F'
+        else:
+            unit_text = unit_initial
+        self._face_temps[self._face_label_pointer].setText("{}{}".format(str(round(temp, 1)), unit_text))
 
 
 if __name__ == "__main__":
