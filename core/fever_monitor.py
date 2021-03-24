@@ -11,11 +11,13 @@ __email__ = "contact@cookjames.uk"
 
 
 # external module imports
-import time
 import os
 
 # module imports
-from core.lepton import LeptonCamera, to_celsius
+from core.lepton import (LeptonCamera,
+                         to_celsius,
+                         to_fahrenheit,
+                         to_kelvin)
 from core.inference import YoloInference
 from core.image_processing import (get_max_array_value,
                                    crop_face_in_image_array,
@@ -24,6 +26,12 @@ from core.image_processing import (get_max_array_value,
                                    draw_face_box,
                                    keep_box_within_bounds,
                                    colormaps)
+
+# logger
+from qtgui.logger import init_console_logger
+import logging
+logger = init_console_logger(log_level=logging.INFO, name="fever_monitor", stream_handler=True, file_handler=True)
+
 
 # global path variable definitions
 THIS_PATH = os.path.abspath(os.path.dirname(__file__))
@@ -41,6 +49,7 @@ class Face:
 class FeverMonitor:
     def __init__(self,
                  temp_threshold=38.0,
+                 temp_unit="Celsius",
                  colormap_index=5,
                  yolo_model="Standard",
                  confidence_threshold=0.5,
@@ -49,6 +58,7 @@ class FeverMonitor:
 
         # init variables
         self._temp_threshold = 0.0
+        self._temp_unit_index=0
         self._colormap_index = 0
         self._yolo_inf = None
         self._model_name_selected = ""
@@ -57,6 +67,7 @@ class FeverMonitor:
 
         # set parameters passed
         self.set_temp_threshold(temp_threshold)
+        self.set_temp_unit(temp_unit)
         self.set_yolo_model(yolo_model)
         self.set_confidence_threshold(confidence_threshold)
         self.set_colormap_index(colormap_index)
@@ -68,6 +79,22 @@ class FeverMonitor:
         """
         assert(type(temp) == int or type(temp) == float)
         self._temp_threshold = temp
+
+    def set_temp_unit(self, unit):
+        """
+        TODO
+        """
+        if unit == "Celsius":
+            self._temp_unit_index = 0
+
+        elif unit == "Fahrenheit":
+            self._temp_unit_index = 1
+
+        elif unit == "Kelvin":
+            self._temp_unit_index = 2
+
+        else:
+            raise Exception("Temperature unit '{}' not recognised".format(unit))
 
     def set_colormap_index(self, index):
         """
@@ -91,7 +118,7 @@ class FeverMonitor:
             weights_path = os.path.join(YOLO_FILES_PATH, 'Lightweight', 'tiny_yolo_3l_best.weights')
             cfg_path = os.path.join(YOLO_FILES_PATH, 'Lightweight', 'tiny_yolo_3l.cfg')
         else:
-            raise Exception("Model name passed not recognised.")
+            raise Exception("Model name '{}' not recognised.".format(model))
 
         # if the model selected is not the model currently setup
         # then create a new model
@@ -106,7 +133,7 @@ class FeverMonitor:
                 use_gpu=self._using_gpu)
 
             # set model network size
-            self._yolo_inf.set_network_dimensions(128, 128)  # TODO: set to 160 x 128
+            self._yolo_inf.set_network_dimensions(160, 128)
 
     def set_confidence_threshold(self, threshold):
         """
@@ -165,15 +192,23 @@ class FeverMonitor:
                 raise Exception("Lepton camera disconnected.")
             raise e
 
+        logger.debug("capturing image...")
         img = self._lepton_camera.get_img()
 
         # load into inf object and run inference
+        logger.debug("loading image...")
         self._yolo_inf.load_image(to_color_img_array(arr=img, colormap_index=5))
+        logger.debug("running inference...")
         detections, inference_time = self._yolo_inf.run(threshold=self._confidence_threshold)
 
+        logger.debug("correcting BBs...")
         # correct bounding boxes that are outside the bounds of the image
         for d in detections:
             d.x, d.y, d.w, d.h = keep_box_within_bounds(img, d.x, d.y, d.w, d.h)
+
+        logger.debug("converting image to color image...")
+        # convert image to color image using a user-set colormap
+        color_img = to_color_img_array(arr=img, colormap_index=self._colormap_index)
 
         face_objects = []
 
@@ -181,38 +216,54 @@ class FeverMonitor:
         for d in detections:
 
             # get face max temperature
-            face_temp = to_celsius(get_max_array_value(
-                arr=crop_face_in_image_array(img, d.x, d.y, d.w, d.h, y_zoom_out=0, x_zoom_out=0)))
+            logger.debug("getting max face temp...")
+            face_temp = get_max_array_value(arr=crop_face_in_image_array(img, d.x, d.y, d.w, d.h, x_zoom_out=0, y_zoom_out=0))
+
+            # convert max face temperature
+            logger.debug("converting max face temp...")
+            if self._temp_unit_index == 0:
+                face_temp = to_celsius(face_temp)
+            elif self._temp_unit_index == 1:
+                face_temp = to_fahrenheit(face_temp)
+            elif self._temp_unit_index == 2:
+                face_temp = to_kelvin(face_temp)
 
             # zoom out of face slightly image of whole head
+            logger.debug("getting face image (zoomed out)...")
             face_img = to_pil_image(
-                crop_face_in_image_array(img, d.x, d.y, d.w, d.h, y_zoom_out=0.3, x_zoom_out=0.3))
+                crop_face_in_image_array(img, d.x, d.y, d.w, d.h, x_zoom_out=0.3, y_zoom_out=0.3))
 
+            # create face object
+            logger.debug("creating face object...")
             face = Face(detection=d, temp=face_temp, img=face_img)
             face_objects.append(face)
 
             # determine properties of displayed boxes
-            if face_temp >= self._temp_threshold:
+            logger.debug("determining colors...")
+            if face_temp < self._temp_threshold:
                 box_color = (50, 205, 50)  # green for below threshold
-                box_thickness = 1
-                text_thickness = 1
             else:
                 box_color = (255, 0, 0)  # red for above threshold
-                box_thickness = 2
-                text_thickness = 2
 
-            # draw box around faces in the image
+            #draw box around faces in the image
+            logger.debug("drawing box around face ({}, {}, {}, {})...".format(
+                face.detection.x,
+                face.detection.y,
+                face.detection.x + face.detection.w,
+                face.detection.y + face.detection.h))
             color_img = draw_face_box(
                 face=face,
                 arr=color_img,
                 color=box_color,
                 text="{}".format(str(round(face_temp, 1))),
-                box_thickness=box_thickness,
-                text_thickness=text_thickness)
+                box_thickness=1,
+                text_thickness=1)
 
         # convert image array to PIL image
-        pil_image = to_pil_image(to_color_img_array(arr=img, colormap_index=self._colormap_index))
+        logger.debug("converting image to pil...")
+        pil_image = to_pil_image(color_img)
 
+        logger.debug("done -> returning results...")
         return pil_image, face_objects
 
 

@@ -87,13 +87,15 @@ class MainWindow(Window):
                 data_callback=self.data_callback,
                 error_callback=self.error_callback,
                 temp_threshold=float(self.config["SETTINGS"]["temp_thresh"]),
+                temp_unit=self.config["SETTINGS"]["temp_unit"],
                 colormap_index=int(colormaps.index(self.config["SETTINGS"]["color_map"])),
                 model_name=self.config["SETTINGS"]["model"],
                 confidence_threshold=float(self.config["SETTINGS"]["confidence_thresh"]),
                 use_gpu=bool(int(self.config["SETTINGS"]["use_gpu"])))
         except Exception as e:
             logger.error("Failed to initialise worker thread: {}".format(e))
-            show_message_dialog(text="Error: Failed to start.", dimensions=None)
+            show_message_dialog(text="Error: {}".format(e), dimensions=None)
+            return
 
         logger.debug("Starting worker thread...")
         self._worker_thread.start()
@@ -133,9 +135,9 @@ class MainWindow(Window):
         self.ui.label_thermal_stream.setPixmap(pixmap)
         self.ui.label_thermal_stream.setMask(pixmap.mask())
 
-    def error_callback(self, text):
-        logger.error(str(text))
-        show_message_dialog(text="Error: {}".format(text), dimensions=(300, 100))
+    def error_callback(self, error):
+        logger.error("error_callback: {}".format(str(error)))
+        show_message_dialog(text="Error: {}".format(error), dimensions=None)
         self._worker_thread = None
         self.ui.pushButton_start.setEnabled(True)
         self.ui.pushButton_stop.setEnabled(False)
@@ -158,8 +160,9 @@ class MainWindow(Window):
         # apply settings to fever monitor if running
         if self._worker_thread is not None:
             try:
-                self._worker_thread.set_configuration(
+                self._worker_thread.change_configuration(
                     temp_threshold=float(self.config["SETTINGS"]["temp_thresh"]),
+                    temp_unit=self.config["SETTINGS"]["temp_unit"],
                     colormap_index=int(colormaps.index(self.config["SETTINGS"]["color_map"])),
                     model_name=self.config["SETTINGS"]["model"],
                     confidence_threshold=float(self.config["SETTINGS"]["confidence_thresh"]),
