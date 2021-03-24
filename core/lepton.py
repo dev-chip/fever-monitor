@@ -53,7 +53,7 @@ class LeptonCamera:
         except Exception as e:
             self._img = None
             self._device_id = None
-            raise e
+            raise Exception("Lepton capture failed: {}".format(e))
 
     def get_img(self):
         """
@@ -159,7 +159,7 @@ def to_fahrenheit(value):
         Returns:
             float - temperature value in Fahrenheit
         """
-    round((to_kelvin(value) - 273.15) * 1.8 + 32, 1)
+    return round((to_kelvin(value) - 273.15) * 1.8 + 32, 1)
 
 
 if __name__ == "__main__":
