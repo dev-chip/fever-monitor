@@ -131,6 +131,7 @@ class MainWindow(Window):
         self.ui.pushButton_start.setEnabled(True)
         self.ui.pushButton_stop.setEnabled(False)
         self.play_audio('monitor_stopped.mp3')
+        self.ui.label_fps.setText(str("%.1f" % 0))
 
     def log_thread_callback(self, text, log_type=""):
         """
@@ -177,6 +178,7 @@ class MainWindow(Window):
         self._worker_thread = None
         self.ui.pushButton_start.setEnabled(True)
         self.ui.pushButton_stop.setEnabled(False)
+        self.ui.label_fps.setText(str("%.1f" % 0))
 
     def open_settings_dialog(self):
         try:

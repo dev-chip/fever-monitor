@@ -10,6 +10,7 @@ __maintainer__ = "James Cook"
 __email__ = "contact@cookjames.uk"
 __status__ = "Prototype"
 
+
 # external module imports
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtGui import QIcon
