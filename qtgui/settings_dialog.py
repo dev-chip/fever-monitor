@@ -30,23 +30,19 @@ class SettingsDialog(QDialog):
         self.ui.setupUi(self)
 
         self.config = config
+        self._temp_unit_index_selected = 0
+        self.unit_texts = ['\xB0C', '\xB0F', 'K']
 
-        self.init_signals()
         self.init_widgets()
         self.load_settings()
+        self.init_signals()  # IMPORTANT - DO THIS LAST
 
     def init_signals(self):
         """
         Initialises widget signals.
         """
         self.ui.pushButton_apply.clicked.connect(self.apply_and_accept)
-
-    def apply_and_accept(self):
-        """
-        Applies configs and exits.
-        """
-        self.apply_settings()
-        self.accept()
+        self.ui.comboBox_temp_unit.currentIndexChanged.connect(self.temp_unit_changed)
 
     def init_widgets(self):
         """
@@ -60,12 +56,14 @@ class SettingsDialog(QDialog):
         """
         Loads settings from the configuration dictionary passed.
         """
-        # set temp option
+        # set temp unit option
         index = self.ui.comboBox_temp_unit.findText(self.config["SETTINGS"]["temp_unit"])
         if index == -1:
             index = 0
             logger.error("Error loading 'temp_unit' configuration.")
         self.ui.comboBox_temp_unit.setCurrentIndex(index)
+        self._temp_unit_index_selected = index
+        self.ui.label_temp_unit.setText('(' + self.unit_texts[index] + ')')
 
         # set colormap option
         index = self.ui.comboBox_colormap.findText(self.config["SETTINGS"]["color_map"])
@@ -114,6 +112,49 @@ class SettingsDialog(QDialog):
             logger.error("Error loading 'confidence_thresh' configuration.")
         self.ui.doubleSpinBox_confidence_thresh.setValue(value)
 
+    def temp_unit_changed(self):
+        """
+        TODO
+        """
+        value = self.ui.doubleSpinBox_temp_thresh.value()
+        new_index = self.ui.comboBox_temp_unit.currentIndex()
+
+        # from Celsius
+        if self._temp_unit_index_selected == 0:
+            if new_index == 1:
+                value = celsius_to_fahrenheit(value)
+            elif new_index == 2:
+                value = celsius_to_kelvin(value)
+
+        # from Fahrenheit
+        elif self._temp_unit_index_selected == 1:
+            if new_index == 0:
+                value = fahrenheit_to_celsius(value)
+            elif new_index == 2:
+                value = fahrenheit_to_kelvin(value)
+
+        # from Kelvin
+        elif self._temp_unit_index_selected == 2:
+            if new_index == 0:
+                value = kelvin_to_celsius(value)
+            elif new_index == 1:
+                value = kelvin_to_fahrenheit(value)
+
+        else:
+            raise Exception("Selected index '{}' of 'comboBox_temp_unit' not found".format(
+                self._temp_unit_index_selected))
+
+        self.ui.doubleSpinBox_temp_thresh.setValue(value)
+        self.ui.label_temp_unit.setText('(' + self.unit_texts[new_index] + ')')
+        self._temp_unit_index_selected = new_index
+
+    def apply_and_accept(self):
+        """
+        Applies configs and exits.
+        """
+        self.apply_settings()
+        self.accept()
+
     def apply_settings(self):
         """
         Applies selected settings to the config dictionary.
@@ -125,3 +166,27 @@ class SettingsDialog(QDialog):
         self.config["SETTINGS"]["model"] = str(self.ui.comboBox_model.currentText())
         self.config["SETTINGS"]["temp_thresh"] = str(self.ui.doubleSpinBox_temp_thresh.value())
         self.config["SETTINGS"]["confidence_thresh"] = str(self.ui.doubleSpinBox_confidence_thresh.value())
+
+
+def kelvin_to_celsius(value):
+    return value - 273.15
+
+
+def celsius_to_kelvin(value):
+    return value + 273.15
+
+
+def kelvin_to_fahrenheit(value):
+    return (value - 273.15) * 1.8 + 32
+
+
+def fahrenheit_to_kelvin(value):
+    return (value - 32) * (5/9) + 273.15
+
+
+def celsius_to_fahrenheit(value):
+    return (value * 1.8) + 32
+
+
+def fahrenheit_to_celsius(value):
+    return (value - 32) * (5/9)

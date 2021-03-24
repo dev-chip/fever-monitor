@@ -13,6 +13,9 @@ __email__ = "contact@cookjames.uk"
 # external module imports
 from PyQt5.QtGui import QPixmap
 from PIL.ImageQt import ImageQt
+from pygame import mixer
+import os
+import time
 
 # project module imports
 from qtgui.gen import MainWindowGenerated
@@ -25,8 +28,15 @@ from qtgui.settings_dialog import SettingsDialog
 from qtgui.cfg import overwrite_config
 from core.image_processing import colormaps
 
+# global path variable definitions
+THIS_PATH = os.path.abspath(os.path.dirname(__file__))
+SOUNDS_PATH = os.path.abspath(os.path.join(THIS_PATH, "sounds"))
+
 # initialise the logger
 logger = init_console_logger(name="gui")
+
+# init music mixer
+mixer.init()
 
 
 class MainWindow(Window):
@@ -44,13 +54,16 @@ class MainWindow(Window):
         logger.verbose("Initialising signals")
         self.init_signals()
 
-        logger.verbose("Hiding logview")
+        logger.verbose("Initialising widget states")
         self.ui.action_show_log_view.setChecked(False)
-        self.update_log_view_visibility()
-
-        self._worker_thread = None
         self.ui.pushButton_start.setEnabled(True)
         self.ui.pushButton_stop.setEnabled(False)
+
+        self.update_log_view_visibility()
+        self.update_fps_frame_visibility()
+
+        self._worker_thread = None
+        self._last_violation = 0
 
         logger.info("GUI initialised")
 
@@ -74,6 +87,13 @@ class MainWindow(Window):
         self.ui.textEdit.setVisible(show)
         self.ui.textEdit.setMinimumSize(*([100, 150] if show else [100, 0]))
         self.ui.textEdit.setMaximumSize(*([9999, 150] if show else [9999, 0]))
+
+    def update_fps_frame_visibility(self):
+        try:
+            self.ui.frame_fps.setVisible(bool(int(self.config["SETTINGS"]["fps"])))
+        except ValueError:
+            logger.error("Failed to set frame_fps visibility: {}".format(e))
+            show_message_dialog(text="Error: Failed to change FPS frame visibility.", dimensions=None)
 
     def start(self):
         """
@@ -102,8 +122,7 @@ class MainWindow(Window):
         logger.info("Started worker thread.")
         self.ui.pushButton_start.setEnabled(False)
         self.ui.pushButton_stop.setEnabled(True)
-
-        #self._worker_thread.my_print()
+        self.play_audio('monitor_started.mp3')
 
     def stop(self):
         if self._worker_thread is not None:
@@ -111,15 +130,19 @@ class MainWindow(Window):
             self._worker_thread = None
         self.ui.pushButton_start.setEnabled(True)
         self.ui.pushButton_stop.setEnabled(False)
+        self.play_audio('monitor_stopped.mp3')
 
     def log_thread_callback(self, text, log_type=""):
         """
             Logs messages received from a thread
         """
-        logger.verbose("Thread send values " + str(text) + ", " + str(log_type) + " to the MainWindow.")
         thread_log(logger, text, log_type)
 
-    def data_callback(self, image):
+    def data_callback(self, image, fps, faces):
+        # set fps
+        self.ui.label_fps.setText(str("%.1f" % fps))
+
+        # set image
         img_width, img_height = image.size
         aspect_ratio = img_width / img_height
 
@@ -135,8 +158,21 @@ class MainWindow(Window):
         self.ui.label_thermal_stream.setPixmap(pixmap)
         self.ui.label_thermal_stream.setMask(pixmap.mask())
 
+        # detect faces over threshold
+        violation = False
+        for face in faces:
+            if face.over_threshold:
+                violation = True
+
+        if (violation
+                and not mixer.music.get_busy()  # do not interrupt current player
+                and time.time() - self._last_violation > 2):  # prevent excessive repetition
+            self.play_audio('temperature_violation.mp3')
+            self._last_violation = time.time()
+
     def error_callback(self, error):
         logger.error("error_callback: {}".format(str(error)))
+        self.play_audio('an_error_occurred_monitor_stopped.mp3')
         show_message_dialog(text="Error: {}".format(error), dimensions=None)
         self._worker_thread = None
         self.ui.pushButton_start.setEnabled(True)
@@ -170,6 +206,24 @@ class MainWindow(Window):
             except Exception as e:
                 logger.error("Failed to set worker thread runtime configuration: {}".format(e))
                 show_message_dialog(text="Error: Failed to change runtime configuration.", dimensions=None)
+
+        # apply gui changes
+        self.update_fps_frame_visibility()
+
+    def play_audio(self, file_name):
+        try:
+            sound_enabled = bool(int(self.config['SETTINGS']['sound']))
+        except Exception as e:
+            logger.error("Failed to load sound configuration: {}".format(e))
+            return
+
+        if sound_enabled:
+            try:
+                mixer.music.load(os.path.abspath(os.path.join(SOUNDS_PATH, file_name)))
+            except Exception as e:
+                logger.error("Failed to load audio file: {}".format(e))
+                return
+            mixer.music.play()
 
 
 if __name__ == "__main__":

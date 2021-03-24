@@ -15,7 +15,7 @@ class CommunicateFatalError(QtCore.QObject):
 
 
 class CommunicateData(QtCore.QObject):
-    myGUI_signal = QtCore.pyqtSignal([Image])
+    myGUI_signal = QtCore.pyqtSignal([Image, float, list])
 
 
 if __name__ == "__main__":

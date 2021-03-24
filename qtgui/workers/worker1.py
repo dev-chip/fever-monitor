@@ -2,15 +2,15 @@
 # A generic worker thread example
 # -------------------------------------------------------------------------------
 
-
-# module imports
-from core.fever_monitor import FeverMonitor
-
 # external module imports
 import threading
+import time
 from qtgui.workers.classes import (CommunicateLog,
                                    CommunicateData,
                                    CommunicateFatalError)
+
+# module imports
+from core.fever_monitor import FeverMonitor
 from qtgui.logger import init_signal_logger
 
 
@@ -68,8 +68,11 @@ class Worker1(threading.Thread):
         try:
             self._log.debug("'Run' called in worker thread.")
 
+            elapsed_times = [time.time() for i in range(10)]
+
             while True:
-                # apply changes
+
+                # apply new settings if set
                 if self._configuration_changed:
                     self._configuration_changed = False
                     self._fever_monitor.set_temp_threshold(temp=self._temp_threshold)
@@ -82,8 +85,13 @@ class Worker1(threading.Thread):
                 # run
                 image, faces = self._fever_monitor.run()
 
+                # calculate fps
+                del elapsed_times[0]
+                elapsed_times.append(time.time())
+                fps = 1 / ((elapsed_times[-1] - elapsed_times[0]) / len(elapsed_times))
+
                 # return data
-                self._com_data.myGUI_signal.emit(image)
+                self._com_data.myGUI_signal.emit(image, fps, faces)
 
         except Exception as e:
             # fatal error occurred and thread stopped

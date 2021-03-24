@@ -40,10 +40,11 @@ YOLO_FILES_PATH = os.path.abspath(os.path.join(PROJECT_ROOT_PATH, "yolo"))
 
 
 class Face:
-    def __init__(self, detection, temp, img):
+    def __init__(self, detection, temp, img, over_threshold):
         self.detection = detection
         self.temp = temp
         self.img = img
+        self.over_threshold = over_threshold
 
 
 class FeverMonitor:
@@ -235,7 +236,11 @@ class FeverMonitor:
 
             # create face object
             logger.debug("creating face object...")
-            face = Face(detection=d, temp=face_temp, img=face_img)
+            face = Face(
+                detection=d,
+                temp=face_temp,
+                img=face_img,
+                over_threshold=(face_temp >= self._temp_threshold))
             face_objects.append(face)
 
             # determine properties of displayed boxes

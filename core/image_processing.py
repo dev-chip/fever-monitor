@@ -20,8 +20,8 @@ import math
 # cv2 colormap names in order of index value
 colormaps = [
     "AUTUMN",
-    "JET",
     "BONE",
+    "JET",
     "WINTER",
     "RAINBOW",
     "OCEAN",
@@ -242,7 +242,7 @@ def draw_face_box(face, arr, color, text="face", box_thickness=1, text_thickness
     # draw text
     cv2.putText(img=arr,
                 text=text,
-                org=(face.detection.x+(face.detection.w//2), face.detection.y),
+                org=(face.detection.x+(face.detection.w//2), face.detection.y-2),
                 fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                 fontScale=0.4,
                 color=color,
