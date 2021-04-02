@@ -210,32 +210,34 @@ class MainWindow(Window):
             # load dialog
             dialog = SettingsDialog(self.config)
             # execute dialog
-            dialog.exec_()
+            accepted = dialog.exec_()
         except Exception as e:
             logger.error("Setting dialog error: {}".format(e))
             show_message_dialog(text="Error: An error occurred displaying the settings dialog.", dimensions=None)
             return
 
-        # save settings
-        self.config = dialog.config
-        overwrite_config(dialog.config)
+        # only apply new settings in the apply button was pressed
+        if accepted:
+            # save settings
+            self.config = dialog.config
+            overwrite_config(dialog.config)
 
-        # apply settings to fever monitor if running
-        if self._worker_thread is not None:
-            try:
-                self._worker_thread.change_configuration(
-                    temp_threshold=float(self.config["SETTINGS"]["temp_thresh"]),
-                    temp_unit=self.config["SETTINGS"]["temp_unit"],
-                    colormap_index=int(colormaps.index(self.config["SETTINGS"]["color_map"])),
-                    model_name=self.config["SETTINGS"]["model"],
-                    confidence_threshold=float(self.config["SETTINGS"]["confidence_thresh"]),
-                    use_gpu=bool(int(self.config["SETTINGS"]["use_gpu"])))
-            except Exception as e:
-                logger.error("Failed to set worker thread runtime configuration: {}".format(e))
-                show_message_dialog(text="Error: Failed to change runtime configuration.", dimensions=None)
+            # apply settings to fever monitor if running
+            if self._worker_thread is not None:
+                try:
+                    self._worker_thread.change_configuration(
+                        temp_threshold=float(self.config["SETTINGS"]["temp_thresh"]),
+                        temp_unit=self.config["SETTINGS"]["temp_unit"],
+                        colormap_index=int(colormaps.index(self.config["SETTINGS"]["color_map"])),
+                        model_name=self.config["SETTINGS"]["model"],
+                        confidence_threshold=float(self.config["SETTINGS"]["confidence_thresh"]),
+                        use_gpu=bool(int(self.config["SETTINGS"]["use_gpu"])))
+                except Exception as e:
+                    logger.error("Failed to set worker thread runtime configuration: {}".format(e))
+                    show_message_dialog(text="Error: Failed to change runtime configuration.", dimensions=None)
 
-        # apply gui changes
-        self.update_fps_frame_visibility()
+            # apply gui changes
+            self.update_fps_frame_visibility()
 
     def play_audio(self, file_name):
         try:
