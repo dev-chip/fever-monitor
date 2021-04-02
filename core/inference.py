@@ -28,7 +28,7 @@ import os
 
 class Detection:
 	"""
-	Inference detection data
+	Inference detection data.
 	"""
 	def __init__(self, x, y, w, h, class_id, confidence):
 		self.x = x
@@ -74,7 +74,13 @@ class YoloInference:
 
 	def set_gpu(self, use):
 		"""
-		TODO:
+		Sets inference to run using a local GPU.
+
+		Params:
+			use: [bool] set to True to use gpu
+
+		Raises:
+			[AssertionError] assertion failed
 		"""
 		if use:
 			self._net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
@@ -105,15 +111,31 @@ class YoloInference:
 		self._network_width = w
 		self._network_height = h
 
-	def load_image_from_file(self, input_file):
+	def load_image_from_file(self, file_path):
 		"""
-		TODO
+		Loads an image from a file.
+
+		Accepts most common image file formats.
+
+		Params:
+			file_path - [string] path to file
+
+		Raises:
+			AssertionError: assertion failed
 		"""
-		self._image = cv2.imread(input_file)
+		assert(os.path.isfile(file_path)), \
+			"File path '{}' is invalid.".format(file_path)
+		self._image = cv2.imread(file_path)
 
 	def load_image(self, image):
 		"""
-		TODO
+		Loads an image of type np.array.
+
+		Params:
+			file_path - [arr] image array
+
+		Raises:
+			AssertionError: assertion failed
 		"""
 		assert(type(image) == np.ndarray), \
 			"Image must be of type np.ndarray"
@@ -125,7 +147,14 @@ class YoloInference:
 
 	def run(self, threshold=0.3):
 		"""
-		TODO
+		Runs inference on the image loaded and returns results.
+
+		Only returns images above the threshold passed. Uses
+		non-maxima suppression to suppress weak, overlapping
+		bounding boxes.
+
+		Returns:
+			[list] array of detection objects
 		"""
 		assert(self._image is not None), \
 			"Cannot run inference - no image loaded."
@@ -146,8 +175,7 @@ class YoloInference:
 		end = time.time()
 		inference_time = end - start
 
-		#print("[INFO] YOLO took {:.6f} seconds".format(inference_time))
-
+		# print("[INFO] YOLO took {:.6f} seconds".format(inference_time))
 
 		# initialize our lists of detected bounding boxes, confidences, and
 		# class IDs, respectively
@@ -209,27 +237,3 @@ class YoloInference:
 					confidence=confidences[i]))
 		return detections, inference_time
 
-
-if __name__ == "__main__":
-	from core.image_processing import draw_boxes, to_pil_image
-	inf = YoloInference(
-		weights_path=r'G:\Darknet\live1_2\backup\yolo-obj_best.weights',
-		cfg_path=r'G:\Darknet\live1_2\yolo-obj.cfg',
-		labels_path=r'G:\Darknet\live1_2\data\obj.names')
-	inf.set_network_dimensions(160, 128)
-
-	labels = ['face']
-	colors = [[255, 255, 0]]  # yellow
-	images_path = r'G:\Documentation\post_training_validation_set\images'
-
-	for img_name in os.listdir(images_path):
-		if '.jpg' not in img_name.lower():
-			continue
-
-		arr = cv2.imread(os.path.join(images_path, img_name))
-		inf.load_image(arr)
-		detection_arr, t = inf.run()
-
-		arr = draw_boxes(detections=detection_arr, arr=arr, colors=colors, labels=labels)
-
-		to_pil_image(color_arr=arr).save(r'C:\Users\cooki\OneDrive\Pictures\work\output\{}'.format(img_name))

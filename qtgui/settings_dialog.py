@@ -1,5 +1,5 @@
 """
-Settings Dialog.
+SettingsDialog class.
 """
 
 __author__ = "James Cook"
@@ -114,7 +114,10 @@ class SettingsDialog(QDialog):
 
     def temp_unit_changed(self):
         """
-        TODO
+        Converts the values of temperatures displayed depending on
+        the temperature unit selected.
+
+        Called when the temperature unit is changed.
         """
         value = self.ui.doubleSpinBox_temp_thresh.value()
         new_index = self.ui.comboBox_temp_unit.currentIndex()
@@ -150,7 +153,7 @@ class SettingsDialog(QDialog):
 
     def apply_and_accept(self):
         """
-        Applies configs and exits.
+        Applies configurations and exits.
         """
         self.apply_settings()
         self.accept()

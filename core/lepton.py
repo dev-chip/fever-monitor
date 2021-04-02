@@ -99,7 +99,10 @@ class LeptonCamera:
 
     def lepton_connected(self):
         """
-        TODO
+        Returns True if the Lepton camera is connected.
+
+        Returns:
+             [bool]] True if the Lepton camera is connected
         """
         self._find_lepton()
         return self._device_id is not None

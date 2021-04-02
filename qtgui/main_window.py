@@ -1,5 +1,5 @@
 """
-Application main window.
+Application main window class.
 """
 
 __author__ = "James Cook"

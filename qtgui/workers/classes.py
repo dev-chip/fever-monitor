@@ -2,6 +2,14 @@
 Classes for workers signal-slot mechanism.
 """
 
+__author__ = "James Cook"
+__copyright__ = "Copyright 2021"
+__license__ = "GNU General Public License v3.0"
+__version__ = "1.0.0"
+__maintainer__ = "James Cook"
+__email__ = "contact@cookjames.uk"
+
+
 from PyQt5 import QtCore
 from PIL.Image import Image
 

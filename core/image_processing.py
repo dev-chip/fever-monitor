@@ -1,5 +1,5 @@
 """
-TODO:
+Image processing functions.
 """
 
 __author__ = "James Cook"
@@ -104,10 +104,20 @@ def to_pil_image(color_arr, width=None):
 
 def scale_resize_image(img, width):
     """
-    Scales an image by its width maintaining its aspect ratio.
+    Scales an image by its width, maintaining its aspect ratio.
 
-    TODO:
+    Params:
+        img - [PIL.Image.Image] image to be resized
+        width - [int] new width
+
+    Returns:
+        [PIL.Image.Image] resized Image object
+
+    Raises:
+        [AssertionError] assertion failed
     """
+    assert (width > 0), \
+        "Width must be greater than 0."
     aspect_ratio = img.height / img.width
     return img.resize((width, round(width * aspect_ratio)))
 
@@ -120,11 +130,17 @@ def keep_box_within_bounds(arr, x, y, w, h):
     array to be the closest correct value.
 
     Params:
-        color_arr: 3D image array
-        TODO
+        arr: 3D image array
+        x: top-left x coordinate of the box
+        y: top-left y coordinate of the box
+        w: width of the box
+        h: height of the box
 
     Returns:
-        TODO
+        [int] x value within the bounds of the image array
+        [int] y value within the bounds of the image array
+        [int] w value within the bounds of the image array
+        [int] h value within the bounds of the image array
     """
     max_y = len(arr) - 1
     max_x = len(arr[0]) - 1
@@ -145,7 +161,21 @@ def keep_box_within_bounds(arr, x, y, w, h):
 
 def crop_face_in_image_array(arr, x, y, w, h, x_zoom_out=0.33, y_zoom_out=0.33):
     """
-    TODO
+    Returns a slices array containing just the face in an image.
+
+    Allows specification of an amount to zoom out of the box by.
+
+    Params:
+        arr: [np.array] 3D image array
+        x: [int] row index top-left of the face in the array
+        y: [int] column index top-left of the face in the array
+        w: [int] width of the face in the array
+        h: [int] height of the face in the array
+        x_zoom_out: [float] zoom-out percentage for the width of the image
+        y_zoom_out: [float] zoom-out percentage for the height of the image
+
+    Returns:
+        [np.array] sliced array
     """
     assert (type(arr) == np.ndarray), \
         "Expected type list or np.ndarray but got {}.".format(type(arr))
@@ -174,7 +204,17 @@ def crop_face_in_image_array(arr, x, y, w, h, x_zoom_out=0.33, y_zoom_out=0.33):
 
 def crop_image_array(arr, x, y, w, h):
     """
-    TODO
+    Returns a slices array containing a specified slice of an array.
+
+    Params:
+        arr: [np.array] 3D image array
+        x: [int] row index top-left
+        y: [int] column index top-left
+        w: [int] width
+        h: [int] height
+
+    Returns:
+        [np.array] sliced array
     """
     if type(arr) == list:
         arr = np.array(arr)
@@ -210,9 +250,18 @@ def get_max_array_value(arr):
 
 def draw_face_box(face, arr, color, text="face", box_thickness=1, text_thickness=1):
     """
-    Draws boxes around detections... TODO: short des
+    Draws boxes and text around face detections.
 
-    TODO:
+    Params:
+        face: [Face] Face object
+        arr: [np.array] 3D image array
+        color: [list] color of the box
+        text: [str] text to be drawn next to the detection
+        box_thickness: [int] thickness of the box drawn
+        text_thickness: [int] thickness of the text drawn
+
+    Returns:
+        arr: [np.array] 3D image array with detection box and text drawn
     """
     # correct out-of-bounds values
     face.detection.x, face.detection.y, face.detection.w, face.detection.h =\

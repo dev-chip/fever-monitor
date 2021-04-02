@@ -1,6 +1,14 @@
-# -------------------------------------------------------------------------------
-# A generic worker thread example
-# -------------------------------------------------------------------------------
+"""
+Worker thread that runs the fever monitor.
+"""
+
+__author__ = "James Cook"
+__copyright__ = "Copyright 2021"
+__license__ = "GNU General Public License v3.0"
+__version__ = "1.0.0"
+__maintainer__ = "James Cook"
+__email__ = "contact@cookjames.uk"
+
 
 # external module imports
 import threading
@@ -15,6 +23,9 @@ from qtgui.logger import init_signal_logger
 
 
 class Worker1(threading.Thread):
+    """
+    Worker thar runs the fever monitor
+    """
     def __init__(self,
                  logger_callback,
                  data_callback,
@@ -63,7 +74,10 @@ class Worker1(threading.Thread):
 
     def run(self):
         """
-        TODO
+        Runs the fever monitor.
+
+        Runs the fever monitor, calculates the FPS,
+        emits the results using a signal-slot system.
         """
         try:
             self._log.debug("'Run' called in worker thread.")
@@ -110,7 +124,8 @@ class Worker1(threading.Thread):
                              confidence_threshold,
                              use_gpu=False):
         """
-        TODO
+        Sets up configuration changed to be applied to
+        the FeverMonitor object.
         """
         # set configurations
         self._temp_threshold = temp_threshold
