@@ -1,5 +1,5 @@
 """
-TODO
+FeverMonitor class and profiling tool.
 """
 
 __author__ = "James Cook"
@@ -27,11 +27,6 @@ from core.image_processing import (get_max_array_value,
                                    keep_box_within_bounds,
                                    colormaps)
 
-# logger
-from qtgui.logger import init_console_logger
-import logging
-logger = init_console_logger(log_level=logging.INFO, name="fever_monitor", stream_handler=True, file_handler=True)
-
 
 # global path variable definitions
 THIS_PATH = os.path.abspath(os.path.dirname(__file__))
@@ -40,6 +35,10 @@ YOLO_FILES_PATH = os.path.abspath(os.path.join(PROJECT_ROOT_PATH, "yolo"))
 
 
 class Face:
+    """
+    Class containing details and image of a face detected.
+    """
+
     def __init__(self, detection, temp, img, over_threshold):
         self.detection = detection
         self.temp = temp
@@ -59,7 +58,7 @@ class FeverMonitor:
 
         # init variables
         self._temp_threshold = 0.0
-        self._temp_unit_index=0
+        self._temp_unit_index = 0
         self._colormap_index = 0
         self._yolo_inf = None
         self._model_name_selected = ""
@@ -76,14 +75,20 @@ class FeverMonitor:
 
     def set_temp_threshold(self, temp):
         """
-        TODO
+        Sets the temperature threshold value.
+
+        Params:
+            temp: [float] temperature threshold
         """
-        assert(type(temp) == int or type(temp) == float)
+        assert (type(temp) == int or type(temp) == float)
         self._temp_threshold = temp
 
     def set_temp_unit(self, unit):
         """
-        TODO
+        Sets the temperature unit to be used.
+
+        Params:
+            unit: [string] temperature unit name
         """
         if unit == "Celsius":
             self._temp_unit_index = 0
@@ -99,14 +104,24 @@ class FeverMonitor:
 
     def set_colormap_index(self, index):
         """
-        TODO
+        Sets the index value of the cv2 colormap to be applied
+        to thermal images that are displayed to the user.
+
+        Params:
+            index: [int] index value of cv2 colormap
         """
-        assert(0 <= index < len(colormaps))
+        assert (0 <= index < len(colormaps))
         self._colormap_index = index
 
     def set_yolo_model(self, model="Standard"):
         """
-        TODO
+        Loads a YOLO model to use for inference.
+
+        The model weights and config files are loaded
+        from a static path.
+
+        Params:
+            model: [sting] name of the model to be loaded
         """
         # define path to file containing class names
         labels_path = os.path.join(YOLO_FILES_PATH, 'obj.names')
@@ -138,52 +153,101 @@ class FeverMonitor:
 
     def set_confidence_threshold(self, threshold):
         """
-        TODO
+        Sets the confidence threshold for inference.
+
+        Params:
+            threshold: [float] threshold value
+
+        Raises:
+            [AssertionError] assertion failed
         """
-        assert(0 <= threshold <= 1)
+        assert(0 <= threshold <= 1), \
+            "Threshold value must be a valid value between 0 and 1."
         self._confidence_threshold = threshold
 
     def set_gpu(self, use):
         """
-        TODO
+        Sets inference to run using a local GPU.
+
+        Params:
+            use: [bool] set to True to use gpu
+
+        Raises:
+            [AssertionError] assertion failed
         """
-        assert(type(use) == bool)
+        assert(type(use) == bool), \
+            "Parameter 'use' must be a valid boolean value."
         self._yolo_inf.set_gpu(use)
         self._using_gpu = use
 
     def is_using_gpu(self):
         """
-        TODO
+        Returns True if the GPU being used.
+
+        Returns:
+            [bool] True if GPU is being used
         """
         return self._using_gpu
 
     def get_colormap_index(self):
         """
-        TODO
+        Returns the index value of the cv2 colormap to be applied
+        to thermal images that are displayed to the user.
+
+        Returns:
+            [int] index value of cv2 colormap
         """
         return self._colormap_index
 
     def get_temp_threshold(self):
         """
-        TODO
+        Gets the temperature threshold value.
+
+        Returns:
+            [float] temperature threshold
         """
         return self._temp_threshold
 
     def get_confidence_threshold(self):
         """
-        TODO
+        Gets the confidence threshold value.
+
+        Returns:
+            [float] confidence threshold
         """
         return self._confidence_threshold
 
     def get_model_name_selected(self):
         """
-        TODO
+        Gets the model name selected.
+
+        Returns:
+            [sting] name of the model being used
         """
         return self._model_name_selected
 
     def run(self):
         """
-        TODO
+        Grabs an image from the camera, runs inference and
+        returns the monitor results.
+
+        An image is captured by the camera and is converted
+        to an 8-bit image. Inference is run on the image
+        using the model that is loaded. The maximum
+        temperatures of any faces detected are recorded and
+        bounding boxes are drawn green if the target is below
+        the temperature threshold, otherwise the box is red.
+        An list of Face objects are returned as well as the
+        image captured which was converted to 8-bit with
+        bounding boxes and temperatures drawn around faces in
+        the image.
+
+        Returns:
+            [PIL.Image.Image] Image containing monitor results
+            [list] - An list of face objects
+
+        Raises:
+            [Exception] Lepton camera disconnected
         """
         try:
             # capture image
@@ -193,21 +257,16 @@ class FeverMonitor:
                 raise Exception("Lepton camera disconnected.")
             raise e
 
-        logger.debug("capturing image...")
         img = self._lepton_camera.get_img()
 
         # load into inf object and run inference
-        logger.debug("loading image...")
         self._yolo_inf.load_image(to_color_img_array(arr=img, colormap_index=5))
-        logger.debug("running inference...")
         detections, inference_time = self._yolo_inf.run(threshold=self._confidence_threshold)
 
-        logger.debug("correcting BBs...")
         # correct bounding boxes that are outside the bounds of the image
         for d in detections:
             d.x, d.y, d.w, d.h = keep_box_within_bounds(img, d.x, d.y, d.w, d.h)
 
-        logger.debug("converting image to color image...")
         # convert image to color image using a user-set colormap
         color_img = to_color_img_array(arr=img, colormap_index=self._colormap_index)
 
@@ -217,11 +276,10 @@ class FeverMonitor:
         for d in detections:
 
             # get face max temperature
-            logger.debug("getting max face temp...")
-            face_temp = get_max_array_value(arr=crop_face_in_image_array(img, d.x, d.y, d.w, d.h, x_zoom_out=0, y_zoom_out=0))
+            face_temp = get_max_array_value(
+                arr=crop_face_in_image_array(img, d.x, d.y, d.w, d.h, x_zoom_out=0, y_zoom_out=0))
 
             # convert max face temperature
-            logger.debug("converting max face temp...")
             if self._temp_unit_index == 0:
                 face_temp = to_celsius(face_temp)
             elif self._temp_unit_index == 1:
@@ -230,12 +288,10 @@ class FeverMonitor:
                 face_temp = to_kelvin(face_temp)
 
             # zoom out of face slightly image of whole head
-            logger.debug("getting face image (zoomed out)...")
             face_img = to_pil_image(
                 crop_face_in_image_array(color_img, d.x, d.y, d.w, d.h, x_zoom_out=0.3, y_zoom_out=0.3))
 
             # create face object
-            logger.debug("creating face object...")
             face = Face(
                 detection=d,
                 temp=face_temp,
@@ -244,18 +300,12 @@ class FeverMonitor:
             face_objects.append(face)
 
             # determine properties of displayed boxes
-            logger.debug("determining colors...")
             if face_temp < self._temp_threshold:
                 box_color = (50, 205, 50)  # green for below threshold
             else:
                 box_color = (255, 0, 0)  # red for above threshold
 
-            #draw box around faces in the image
-            logger.debug("drawing box around face ({}, {}, {}, {})...".format(
-                face.detection.x,
-                face.detection.y,
-                face.detection.x + face.detection.w,
-                face.detection.y + face.detection.h))
+            # draw box around faces in the image
             color_img = draw_face_box(
                 face=face,
                 arr=color_img,
@@ -265,10 +315,8 @@ class FeverMonitor:
                 text_thickness=1)
 
         # convert image array to PIL image
-        logger.debug("converting image to pil...")
         pil_image = to_pil_image(color_img)
 
-        logger.debug("done -> returning results...")
         return pil_image, face_objects
 
 
@@ -276,22 +324,28 @@ class FeverMonitor:
 #     Profile Code      #
 # --------------------- #
 if __name__ == "__main__":
+    # import profiling modules
     import pstats
     import cProfile
+
+    # instantiate and enable the profiler
     pr = cProfile.Profile()
     pr.enable()
-    # fever_monitor = FeverMonitor(
-    #     cfg_path=r'G:\Darknet\live2_2\yolo-obj.cfg',
-    #     labels_path=r'G:\Darknet\live2_2\data\obj.names',
-    #     weights_path=r'G:\Darknet\live2_2\backup\yolo-obj_best.weights',
-    #     use_gpu=False)
+
+    # run inference
     fever_monitor = FeverMonitor(
-        cfg_path=r'G:\Darknet\tiny_3l\tiny_yolo_3l.cfg',
-        labels_path=r'G:\Darknet\tiny_3l\data\obj.names',
-        weights_path=r'G:\Darknet\tiny_3l\backup\tiny_yolo_3l_best.weights',
+        temp_threshold=38.0,
+        temp_unit="Celsius",
+        colormap_index=5,
+        yolo_model="Standard",
+        confidence_threshold=0.5,
         use_gpu=False)
     for i in range(100):
         fever_monitor.run()
+
+    # disable the profiler
     pr.disable()
+
+    # output the results statistics
     stats = pstats.Stats(pr).sort_stats('cumtime')
     stats.print_stats()
