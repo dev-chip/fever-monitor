@@ -68,7 +68,8 @@ class Worker1(threading.Thread):
         try:
             self._log.debug("'Run' called in worker thread.")
 
-            elapsed_times = [time.time() for i in range(10)]
+            fps = 0
+            smoothing = 0.9
 
             while True:
 
@@ -83,12 +84,16 @@ class Worker1(threading.Thread):
                     self._fever_monitor.set_gpu(use=self._use_gpu)
 
                 # run
+                start = time.time()
                 image, faces = self._fever_monitor.run()
+                elapsed_time = time.time() - start
 
                 # calculate fps
-                del elapsed_times[0]
-                elapsed_times.append(time.time())
-                fps = 1 / ((elapsed_times[-1] - elapsed_times[0]) / len(elapsed_times))
+                last_fps = fps
+                fps = 1 / elapsed_time
+
+                # smooth average of fps
+                fps = (last_fps * smoothing) + (fps * (1.0 - smoothing))
 
                 # return data
                 self._com_data.myGUI_signal.emit(image, fps, faces)
