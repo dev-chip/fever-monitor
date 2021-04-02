@@ -1,5 +1,5 @@
 """
-Unit tests for the image_processing module.
+Unit tests for the fever_monitor module.
 """
 
 # unit test imports

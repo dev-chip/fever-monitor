@@ -1,5 +1,5 @@
 """
-Unit tests for the image_processing module.
+Unit tests for the inference module.
 """
 
 # unit test imports
