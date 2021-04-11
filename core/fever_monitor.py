@@ -289,7 +289,7 @@ class FeverMonitor:
 
             # zoom out of face slightly image of whole head
             face_img = to_pil_image(
-                crop_face_in_image_array(color_img, d.x, d.y, d.w, d.h, x_zoom_out=0.3, y_zoom_out=0.3))
+                crop_face_in_image_array(color_img, d.x, d.y, d.w, d.h, x_zoom_out=0.6, y_zoom_out=0.6))
 
             # create face object
             face = Face(

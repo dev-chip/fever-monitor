@@ -197,10 +197,10 @@ def crop_face_in_image_array(arr, x, y, w, h, x_zoom_out=0.33, y_zoom_out=0.33):
     x_zoom = math.ceil(w * x_zoom_out)
     y_zoom = math.ceil(h * y_zoom_out)
 
-    x = x - x_zoom
-    y = y - y_zoom
-    w = w + (x_zoom * 2)
-    h = h + (y_zoom * 2)
+    x = x - x_zoom//2
+    y = y - y_zoom//2
+    w = w + x_zoom
+    h = h + y_zoom
 
     # if the zoom-out has caused the indexes to go out-of-bounds, set
     # indexes to be their closest in-bound value
