@@ -7,5 +7,13 @@ sample_colormaps
 # bytecode files
 *.pyc
 
+# testing
+.coverage
+htmlcov
+
 # other
 *__pycache__
+
+# weights files
+/yolo/Lightweight/tiny_yolo_3l_best.weights
+/yolo/Standard/yolo-obj_best.weights
