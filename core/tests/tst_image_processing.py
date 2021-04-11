@@ -69,19 +69,27 @@ class TestImageProcessingModule(unittest.TestCase):
         """
         Tests the keep_box_within_bounds method.
 
-        Case 1: Valid width.
+        Case 1: Valid widths.
         """
         # perform operation
         img = to_pil_image(color_arr=self.img_arr, width=None)
 
+        # assertions
         self.assertTrue((np.array(img.size) == np.array(self.img_arr.shape[:-1])[::-1]).all())
+        self.assertEqual(type(img), Image.Image)
+
+        # perform operation
+        img = to_pil_image(color_arr=self.img_arr, width=320)
+
+        # assertions
+        self.assertTrue((np.array(img.size) == np.array([320, 240])).all())
         self.assertEqual(type(img), Image.Image)
 
     def test_to_pil_image_004(self):
         """
         Tests the keep_box_within_bounds method.
 
-        Case 2: Invalid width.
+        Case 2: Invalid widths.
         """
         widths = [0, -5, -100]
 
@@ -129,9 +137,9 @@ class TestImageProcessingModule(unittest.TestCase):
             [np.zeros((20, 20)), 15, 1, 6, 12],
             [np.zeros((20, 20)), 2, 15, 6, 12],
             [np.zeros((20, 20)), -5, 15, 1, 1],
-            [np.zeros((20, 20)), -5, 15, 11, 1],
+            [np.zeros((20, 20)), -5, 15, 11, -1],
             [np.zeros((20, 20)), -5, 15, 7, 1],
-            [np.zeros((20, 20)), -5, 15, 40, 1],
+            [np.zeros((20, 20)), -5, -1, 40, 1],
             [np.zeros((30, 20)), 41, 15, 2, 1],
             [np.zeros((30, 20)), 2, 31, 2, 5]
         ]
@@ -144,9 +152,9 @@ class TestImageProcessingModule(unittest.TestCase):
             [15, 1, 4, 12],
             [2, 15, 6, 4],
             [0, 15, 0, 1],
-            [0, 15, 6, 1],
+            [0, 15, 6, 0],
             [0, 15, 2, 1],
-            [0, 15, 19, 1],
+            [0, 0, 19, 0],
             [19, 15, 0, 1],
             [2, 29, 2, 0]
         ]
@@ -344,9 +352,34 @@ class TestImageProcessingModule(unittest.TestCase):
                 h=20)
         self.assertTrue('Expected type list or np.ndarray but got' in str(context.exception))
 
-    def test_get_max_array_value_016(self):
+    def test_crop_image_array_016(self):
+        """
+        Tests the crop_face_in_image_array method.
+
+        Case 7: Array instead of np.ndarray
+        """
+        # perform operation
+        cropped_arr = crop_image_array(
+            list(self.img_arr),
+            x=50,
+            y=70,
+            w=30,
+            h=20)
+
+        # result
+        result = cropped_arr.shape
+
+        # expected result
+        expected_result = [20, 30, 3]
+
+        # assertions
+        self.assertTrue((np.array(result) == np.array(expected_result)).all())
+
+    def test_get_max_array_value_017(self):
         """
         Tests the get_max_array_value method.
+
+        Case 1: np.ndarray parameter
         """
         arr = np.loadtxt(os.path.join(TEST_FILES_PATH, 'lepton_grab.csv'), delimiter=',')
 
@@ -359,7 +392,24 @@ class TestImageProcessingModule(unittest.TestCase):
         # assertions
         self.assertEqual(expected_result, result)
 
-    def test_draw_face_box_017(self):
+    def test_get_max_array_value_018(self):
+        """
+        Tests the get_max_array_value method.
+
+        Case 2: list parameter
+        """
+        arr = np.loadtxt(os.path.join(TEST_FILES_PATH, 'lepton_grab.csv'), delimiter=',')
+
+        # perform operation and get result
+        result = get_max_array_value(list(arr))
+
+        # expected result
+        expected_result = 35536.0
+
+        # assertions
+        self.assertEqual(expected_result, result)
+
+    def test_draw_face_box_019(self):
         """
         Tests the draw_face_box method.
         """

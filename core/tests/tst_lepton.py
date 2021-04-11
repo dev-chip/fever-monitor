@@ -41,7 +41,42 @@ class TestLeptonModule(unittest.TestCase):
         self.lepton_camera._camera.uptime_ms = 4242.123
         self.lepton_camera._camera.ffc_elapsed_ms = 8282.987
 
-    def test_Lepton_get_img_001(self):
+    @patch('flirpy.camera.lepton.Lepton.find_video_device')
+    def test_Lepton_init_001(self, mock_find_video_device):
+        """
+        Tests the Lepton.__init__ fails when a Lepton camera is not connected
+        """
+        mock_find_video_device.return_value = None
+        with self.assertRaises(ValueError) as context:
+            LeptonCamera()
+        self.assertTrue('Lepton camera not connected.' in str(context.exception))
+
+    @patch('flirpy.camera.lepton.Lepton.find_video_device')
+    def test_Lepton_capture_002(self, mock_find_video_device):
+        """
+        Tests the Lepton.capture fails when a Lepton camera is not connected
+        """
+        mock_find_video_device.return_value = None
+        self.setup()
+        self.lepton_camera._device_id = None
+
+        with self.assertRaises(ValueError) as context:
+            self.lepton_camera.capture()
+        self.assertTrue('Lepton camera not connected.' in str(context.exception))
+
+    @patch('flirpy.camera.lepton.Lepton.grab')
+    def test_Lepton_capture_003(self, mock_find_video_device):
+        """
+        Tests the Lepton.capture fails when a Lepton camera is not connected
+        """
+        mock_find_video_device.side_effect = Exception("test value error")
+        self.setup()
+
+        with self.assertRaises(Exception) as context:
+            self.lepton_camera.capture()
+        self.assertTrue('test value error' in str(context.exception))
+
+    def test_Lepton_get_img_004(self):
         """
         Tests the Lepton._get_img class method.
         """
@@ -56,7 +91,7 @@ class TestLeptonModule(unittest.TestCase):
         # assertions
         self.assertTrue((result == expected_result).all())
 
-    def test_Lepton_get_uptime_002(self):
+    def test_Lepton_get_uptime_005(self):
         """
         Tests the Lepton._get_uptime class method.
         """
@@ -71,7 +106,7 @@ class TestLeptonModule(unittest.TestCase):
         # assertions
         self.assertEqual(result, expected_result)
 
-    def test_Lepton_get_ffc_elapsed_003(self):
+    def test_Lepton_get_ffc_elapsed_006(self):
         """
         Tests the Lepton._get_ffc_elapsed class method.
         """
@@ -87,7 +122,7 @@ class TestLeptonModule(unittest.TestCase):
         self.assertEqual(result, expected_result)
 
     @patch('flirpy.camera.lepton.Lepton.find_video_device')
-    def test_Lepton_lepton_connected_004(self, mock_find_video_device):
+    def test_Lepton_lepton_connected_007(self, mock_find_video_device):
         """
         Tests the Lepton._lepton_connected class method.
 
@@ -107,7 +142,7 @@ class TestLeptonModule(unittest.TestCase):
         self.assertEqual(result, expected_result)
 
     @patch('flirpy.camera.lepton.Lepton.find_video_device')
-    def test_Lepton_lepton_connected_005(self, mock_find_video_device):
+    def test_Lepton_lepton_connected_008(self, mock_find_video_device):
         """
         Tests the Lepton.lepton_connected class method.
 
@@ -127,7 +162,7 @@ class TestLeptonModule(unittest.TestCase):
         self.assertEqual(result, expected_result)
 
     @patch('flirpy.camera.lepton.Lepton.find_video_device')
-    def test_Lepton_find_lepton_006(self, mock_find_video_device):
+    def test_Lepton_find_lepton_009(self, mock_find_video_device):
         """
         Tests the Lepton._find_lepton class method.
 
@@ -150,7 +185,7 @@ class TestLeptonModule(unittest.TestCase):
         self.assertEqual(result, expected_result)
 
     @patch('flirpy.camera.lepton.Lepton.find_video_device')
-    def test_Lepton_find_lepton_007(self, mock_find_video_device):
+    def test_Lepton_find_lepton_010(self, mock_find_video_device):
         """
         Tests the Lepton._find_lepton class method.
 
@@ -172,7 +207,7 @@ class TestLeptonModule(unittest.TestCase):
         # assertions
         self.assertEqual(result, expected_result)
 
-    def test_to_kelvin_008(self):
+    def test_to_kelvin_011(self):
         """
         Tests the to_kelvin method.
         """
@@ -196,7 +231,7 @@ class TestLeptonModule(unittest.TestCase):
         # assertions
         self.assertTrue((np.array(result) == np.array(expected_result)).all())
 
-    def test_to_celsius_009(self):
+    def test_to_celsius_012(self):
         """
         Tests the to_celsius method.
         """
@@ -220,7 +255,7 @@ class TestLeptonModule(unittest.TestCase):
         # assertions
         self.assertTrue((np.array(result) == np.array(expected_result)).all())
 
-    def test_to_fahrenheit_011(self):
+    def test_to_fahrenheit_013(self):
         """
         Tests the to_fahrenheit method.
         """
