@@ -52,8 +52,9 @@ class YoloInference:
 		self.cfg_path = cfg_path
 		self.labels_path = labels_path
 		# network dimensions
-		self._network_width = network_width
-		self._network_height = network_height
+		self._network_width = None
+		self._network_height = None
+		self.set_network_dimensions(w=network_width, h=network_height)
 		# init vars
 		self._net = None
 		self._image = None
