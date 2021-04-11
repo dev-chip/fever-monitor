@@ -151,10 +151,23 @@ def keep_box_within_bounds(arr, x, y, w, h):
     if y < 0:
         h += y
         y = 0
+    
+    if x > max_x:
+        x = max_x
+        w = 0
+    if y > max_y:
+        y = max_y
+        h = 0
+        
     if x + w > max_x:
         w = max_x - x
     if y + h > max_y:
         h = max_y - y
+    
+    if w < 0:
+        w = 0
+    if h < 0:
+        h = 0
 
     return x, y, w, h
 
