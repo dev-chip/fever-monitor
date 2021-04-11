@@ -152,6 +152,15 @@ class TestInferenceModule(unittest.TestCase):
         # assertions
         self.assertEqual(19, faces_detected)
 
+    def test_set_gpu_007(self):
+        """
+        Test the YoloInference.run class function.
+
+        Case: Setup to use GPU.
+        """
+        self.setup_standard()
+        self.inf.set_gpu(True)
+
 
 if __name__ == '__main__':
     unittest.main()
