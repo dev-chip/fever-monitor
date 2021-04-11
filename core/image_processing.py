@@ -233,9 +233,9 @@ def crop_image_array(arr, x, y, w, h):
         arr = np.array(arr)
     assert (type(arr) == np.ndarray), \
         "Expected type list or np.ndarray but got {}.".format(type(arr))
-    assert (len(arr) > y and len(arr) > y + h), \
+    assert (len(arr) > y and len(arr) > y + h and y > 0 and h >= 0), \
         "y crop index outside bounds of the array ({}, {}).".format(y, y + h)
-    assert (len(arr[0]) > x and len(arr[0]) > x + w), \
+    assert (len(arr[0]) > x and len(arr[0]) > x + w and x > 0 and w >= 0), \
         "x crop index outside bounds of the array ({}, {}).".format(x, x + w)
     return arr[y:y+h, x:x+w]
 
