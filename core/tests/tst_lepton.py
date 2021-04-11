@@ -6,20 +6,24 @@ Unit tests for the lepton module.
 import unittest
 from unittest.mock import patch
 
+# module imports
+import numpy as np
+import os
+import sys
+
+# global path variable definitions
+THIS_PATH = os.path.abspath(os.path.dirname(__file__))
+TEST_FILES_PATH = os.path.abspath(os.path.join(THIS_PATH, "files"))
+PROJECT_ROOT_PATH = os.path.abspath(os.path.join(THIS_PATH, "..", ".."))
+
+# append project path
+sys.path.append(PROJECT_ROOT_PATH)
 
 # project imports
 from core.lepton import (LeptonCamera,
                          to_celsius,
                          to_fahrenheit,
                          to_kelvin)
-
-# module imports
-import numpy as np
-import os
-
-# global path variable definitions
-THIS_PATH = os.path.abspath(os.path.dirname(__file__))
-TEST_FILES_PATH = os.path.abspath(os.path.join(THIS_PATH, "files"))
 
 
 class TestLeptonModule(unittest.TestCase):

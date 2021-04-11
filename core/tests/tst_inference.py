@@ -5,11 +5,9 @@ Unit tests for the inference module.
 # unit test imports
 import unittest
 
-# project imports
-from core.inference import YoloInference
-
 # module imports
 import os
+import sys
 from cv2 import imread
 
 # global path variable definitions
@@ -18,6 +16,12 @@ TEST_FILES_PATH = os.path.abspath(os.path.join(THIS_PATH, "files"))
 TEST_SAMPLE_IMAGES_PATH = os.path.abspath(os.path.join(TEST_FILES_PATH, "samples"))
 PROJECT_ROOT_PATH = os.path.abspath(os.path.join(THIS_PATH, "..", ".."))
 YOLO_FILES_PATH = os.path.abspath(os.path.join(PROJECT_ROOT_PATH, "yolo"))
+
+# append project path
+sys.path.append(PROJECT_ROOT_PATH)
+
+# project imports
+from core.inference import YoloInference
 
 
 class TestInferenceModule(unittest.TestCase):
