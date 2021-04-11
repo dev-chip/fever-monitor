@@ -58,7 +58,7 @@ def to_color_img_array(arr, colormap_index=5):
     Raises:
         AssertionError: assertions fail
     """
-    assert(colormap_index >= 0 or colormap_index < len(colormaps)),\
+    assert(colormap_index >= 0 and colormap_index < len(colormaps)),\
         "colormap_index value '{}' is invalid. Must be an integer in range 0 to {}.".format(
             colormap_index, len(colormaps))
 
