@@ -1,7 +1,7 @@
 # Fever Monitor using YOLOv4 thermal face detection.
 *A project submitted in partial fulfilment of the award of the degree of BSc (Hons) Computer Science at Staffordshire University.*
 
-A Python fever monitor using thermal face detection.
+A Python fever monitor using AI thermal face detection.
 
 ## How it works
 Uses a FLIR Lepton™ 3.5 thermal imaging camera to input a  thermal video feed using a Darknet YOLOv4 model (https://github.com/pjreddie/darknet). The user is alerted of any faces that exceed a temperature threshold.
